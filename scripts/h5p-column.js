@@ -548,6 +548,7 @@ H5P.ColumnPapiJo = (function (EventDispatcher) {
     'H5P.DragQuestion',
     'H5P.DragQuestionPapiJo',
     'H5P.DialogcardsPapiJo',
+    'H5P.MarkTheWordsPapiJo',
     'H5P.Summary',
     'H5P.DragText',
     'H5P.MarkTheWords',
