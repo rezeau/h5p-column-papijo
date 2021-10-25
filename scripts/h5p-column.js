@@ -541,6 +541,7 @@ H5P.ColumnPapiJo = (function (EventDispatcher) {
   var isTasks = [
     'H5P.ImageHotspotQuestion',
     'H5P.Blanks',
+    'H5P.Crossword',
     'H5P.Essay',
     'H5P.SingleChoiceSet',
     'H5P.MultiChoice',
@@ -548,6 +549,7 @@ H5P.ColumnPapiJo = (function (EventDispatcher) {
     'H5P.DragQuestion',
     'H5P.DragQuestionPapiJo',
     'H5P.DialogcardsPapiJo',
+    'H5P.Dictation',
     'H5P.MarkTheWordsPapiJo',
     'H5P.Summary',
     'H5P.DragText',
