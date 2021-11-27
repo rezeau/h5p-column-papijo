@@ -2,7 +2,7 @@
   "semantics":[
     {
       "label":"Liste des contenus empilés",
-      "entity":"innhold",
+      "entity":"contenu",
       "field":{
         "fields":[
           {
