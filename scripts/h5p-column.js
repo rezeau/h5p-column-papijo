@@ -550,6 +550,7 @@ H5P.ColumnPapiJo = (function (EventDispatcher) {
     'H5P.DragQuestionPapiJo',
     'H5P.DialogcardsPapiJo',
     'H5P.Dictation',
+    "H5P.HighlightTheWords",
     'H5P.MarkTheWordsPapiJo',
     'H5P.Summary',
     'H5P.DragText',
@@ -559,7 +560,8 @@ H5P.ColumnPapiJo = (function (EventDispatcher) {
     'H5P.QuestionSet',
     'H5P.InteractiveVideo',
     'H5P.CoursePresentation',
-    'H5P.DocumentationTool'
+    'H5P.DocumentationTool',
+    'H5P.JigsawPuzzle'
   ];
 
   /**
@@ -593,6 +595,7 @@ H5P.ColumnPapiJo = (function (EventDispatcher) {
     'H5P.Essay',
     'H5P.Link',
     'H5P.Accordion',
+    'H5P.AccordionPapiJo',
     'H5P.Table',
     'H5P.GuessTheAnswer',
     'H5P.Blanks',

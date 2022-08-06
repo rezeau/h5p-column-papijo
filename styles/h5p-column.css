@@ -90,3 +90,27 @@
 .h5p-interactive-book .h5p-column-content:first-child {
   margin-top: 1em!important;
 }
+
+/* Custom override css rules for H5P contents inside the papi Jo Column. */
+.h5p-image-hotspot {
+  background: transparent!important;
+}
+/* Hack to fix bug with Chrome-based browsers. */
+.h5p-audio {
+  height: revert!important;
+}
+
+/*Hack to display image with a reasonable width in interactive book */
+.h5p-column-content.h5p-image {
+  width: fit-content!important;
+}
+
+/*Hack to provide a right margin in Browse and Match modes */
+.h5p-column-content.h5p-dialogcards {
+  margin-right: 1em!important;
+}
+
+/*Hack to display zoomed in image and show the zoom-out icon*/
+.h5p-question-image.h5p-question-image-fill-width .h5p-question-image-scalable {
+  width: 98%!important;
+}
