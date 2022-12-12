@@ -102,15 +102,41 @@
 
 /*Hack to display image with a reasonable width in interactive book */
 .h5p-column-content.h5p-image {
-  width: fit-content!important;
+  //width: fit-content!important;
 }
 
 /*Hack to provide a right margin in Browse and Match modes */
-.h5p-column-content.h5p-dialogcards {
+.h5p-column-content {
   margin-right: 1em!important;
+  //padding-right: 1em!important;
+}
+
+.h5p-column-content.h5p-image-hotspots,
+.h5p-column-content.h5p-audio-wrapper,
+.h5p-column-content .h5p-audio-wrapper,
+.h5p-column-content .h5p-dragquestion-has-no-background {
+  padding-right: 1em!important;
 }
 
 /*Hack to display zoomed in image and show the zoom-out icon*/
 .h5p-question-image.h5p-question-image-fill-width .h5p-question-image-scalable {
   width: 98%!important;
+}
+
+.h5p-highlight-the-words-text-container {
+  font-size: 1em!important;
+}
+
+.h5p-interactive-video .h5p-control.h5p-playbackRate {
+display:none!important;
+visibility:hidden!important;
+}
+
+.h5p-interactive-video .h5p-control {
+//display:none!important;
+//visibility:hidden!important;
+}
+
+.h5p-image-hotspot-popup-content {
+  font-size: 0.75em!important;
 }
