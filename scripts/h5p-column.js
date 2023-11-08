@@ -1,4 +1,4 @@
-H5P.ColumnPapiJo = (function (EventDispatcher) {
+  H5P.ColumnPapiJo = (function (EventDispatcher) {
 
   /**
    * Column Constructor
@@ -385,7 +385,7 @@ H5P.ColumnPapiJo = (function (EventDispatcher) {
      * @return {boolean} True, if all answers have been given.
      */
     self.getAnswerGiven = function () {
-      return instances.reduce(function (prev, instance) {
+      return instances.reduce(function (prev, instance) { 
         return prev && (instance.getAnswerGiven ? instance.getAnswerGiven() : prev);
       }, true);
     };
@@ -559,7 +559,9 @@ H5P.ColumnPapiJo = (function (EventDispatcher) {
     'H5P.MemoryGame',
     'H5P.QuestionSet',
     'H5P.InteractiveVideo',
-    'H5P.CoursePresentation'
+    'H5P.CoursePresentation',
+    'H5P.MultiMediaChoice',
+    'H5P.MultiMediaChoicePapiJo'
   ];
 
   /**

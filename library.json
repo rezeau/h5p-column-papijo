@@ -6,8 +6,8 @@
   "license": "MIT",
   "author": "Joubel",
   "majorVersion": 1,
-  "minorVersion": 15,
-  "patchVersion": 11,
+  "minorVersion": 16,
+  "patchVersion": 2,
   "runnable": 1,
   "fullscreen": 0,
   "embedTypes": [
