@@ -555,8 +555,8 @@
     'H5P.Summary',
     'H5P.DragText',
     'H5P.DragTextPapiJo',
-    'H5P.MarkTheWords',
-    'H5P.MemoryGame',
+    'H5P.MemoryGame',    
+    'H5P.MultiMediaChoicePapiJo',
     'H5P.QuestionSet',
     'H5P.InteractiveVideo',
     'H5P.CoursePresentation',
@@ -609,7 +609,6 @@
     'H5P.MarkTheWords',
     'H5P.ImageHotspotQuestion',
     'H5P.MemoryGame',
-    'H5P.Dialogcards',
     'H5P.DialogcardsPapiJo',
     'H5P.QuestionSet',
     'H5P.DocumentationTool'
@@ -627,7 +626,6 @@
    */
   var hasBottomMargins = [
     'H5P.CoursePresentation',
-    'H5P.Dialogcards',
     'H5P.GuessTheAnswer',
     'H5P.ImageSlider'
   ];
