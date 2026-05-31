@@ -21,10 +21,17 @@
       params.useSeparators = true;
     }
 
+    // Fallback if column is empty
+    if (params.content === undefined) {
+      params.content = [];
+    }
+
     this.contentData = data;
 
     // Column wrapper element
     var wrapper;
+
+    var boxContainer;
 
     // H5P content in the column
     var instances = [];
@@ -119,23 +126,53 @@
 
       // Create content instance
       var instance = H5P.newRunnable(content, id, undefined, true, contentData);
-
-      // Bubble resize events
+/*
+      Bubble resize events
       bubbleUp(instance, 'resize', self);
+*/
+      // Keep track of all instances that are tasks
+      const taskInstances = [];
 
       // Check if instance is a task
       if (Column.isTask(instance)) {
         // Tasks requires completion
+        taskInstances.push(instance);
+      }
 
-        instance.on('xAPI', trackScoring(numTasks));
+      // For H5P.Row, we'll retrieve the actual task instances
+      if (library === 'H5P.Row') {
+        const rowColumns = instance.getInstances();
+
+        // A row can have several columns
+        for (const rowColumn of rowColumns) {
+
+          // And each row column can have several content types,
+          // some of which might be tasks
+          const rowColumnInstances = rowColumn.getInstances();
+          for (const rowColumnInstance of rowColumnInstances) {
+            if (Column.isTask(rowColumnInstance)) {
+              taskInstances.push(rowColumnInstance);
+            }
+          }
+        }
+      }
+
+      for (const task of taskInstances) {
+        task.on('xAPI', trackScoring(numTasks));
         numTasks++;
       }
 
-      if (library === 'H5P.Image' || library === 'H5P.TwitterUserFeed') {
+      if (library === 'H5P.Image') {
         // Resize when images are loaded
 
         instance.on('loaded', function () {
           self.trigger('resize');
+        });
+      }
+      else if (library === 'H5P.Collage') {
+        window.requestAnimationFrame(() => {
+          // Do not allow collage to set styling on box containers
+          container.parentNode.removeAttribute('style');
         });
       }
 
@@ -148,7 +185,7 @@
       });
 
       // Add to DOM wrapper
-      wrapper.appendChild(container);
+      boxContainer.appendChild(container);
     };
 
     /**
@@ -177,71 +214,60 @@
      * @param {string} libraryName Name of the next content type
      * @param {string} useSeparator
      */
-    var addSeparator = function (libraryName, useSeparator) {
+    var addSeparator = function (libraryName, useSeparator, content) {
       // Determine separator spacing
       var thisHasMargin = (hasMargins.indexOf(libraryName) !== -1);
+      let useBox = false;
+
+      if (libraryName === 'H5P.Row') {
+        let lastContent = null;
+        let contentCount = content.params?.columns?.reduce((count, column) => {
+          const contents = column.content?.params?.content;
+          count += contents?.length ?? 0;
+          if (contents?.length > 0) {
+            lastContent = column.content.params.content[contents.length-1];
+          }
+          return count;
+        }, 0);
+
+        // To avoid messy margin computation, separator setting should be disabled when there is more
+        // than a single content inside a row. We also don't want a separator if we don't have any content
+        if (useSeparator === 'auto' && (contentCount > 1 || contentCount === 0)) {
+          useSeparator = 'disabled';
+        } else if (contentCount > 0) {
+          // If we only have one content, we want to follow the same procedure as if that content was
+          // not wrapped on Row and RowColumn.
+          addSeparator(lastContent.library.split(' ')[0], useSeparator ?? 'auto');
+          return;
+        } else {
+          // No separator.
+          return;
+        }
+      }
 
       // Only add if previous content exists
       if (previousHasMargin !== undefined) {
-
-        // Create separator element
-        var separator = document.createElement('div');
-        //separator.classList.add('h5p-column-ruler');
-
         // If no margins, check for top margin only
         if (!thisHasMargin && (hasTopMargins.indexOf(libraryName) === -1)) {
-          if (!previousHasMargin) {
-            // None of them have margin
-
-            // Only add separator if forced
-            if (useSeparator === 'enabled') {
-              // Add ruler
-              separator.classList.add('h5p-column-ruler');
-
-              // Add space both before and after the ruler
-              separator.classList.add('h5p-column-space-before-n-after');
-            }
-            else {
-              // Default is to separte using a single space, no ruler
-              separator.classList.add('h5p-column-space-before');
-            }
-          }
-          else {
-            // We don't have any margin but the previous content does
-
-            // Only add separator if forced
-            if (useSeparator === 'enabled') {
-              // Add ruler
-              separator.classList.add('h5p-column-ruler');
-
-              // Add space after the ruler
-              separator.classList.add('h5p-column-space-after');
-            }
-          }
-        }
-        else if (!previousHasMargin) {
-          // We have margin but not the previous content doesn't
-
-          // Only add separator if forced
           if (useSeparator === 'enabled') {
-            // Add ruler
-            separator.classList.add('h5p-column-ruler');
-
-            // Add space after the ruler
-            separator.classList.add('h5p-column-space-before');
+            useBox = true;
           }
         }
-        else {
-          // Both already have margin
-
-          if (useSeparator !== 'disabled') {
-            // Default is to add ruler unless its disabled
-            separator.classList.add('h5p-column-ruler');
-          }
+        // If we don't have margins, but the content has separator explictly set,
+        // we use a box.
+        else if (!previousHasMargin && useSeparator === 'enabled') {
+          useBox = true;
         }
-
+        // If we have margins, we need to make sure separators are not explicitly disabled.
+        else if (previousHasMargin && useSeparator !== 'disabled') {
+          useBox = true;
+        }
         // Insert into DOM
-        wrapper.appendChild(separator);
+        if (useBox) {
+          boxContainer = document.createElement('div');
+          boxContainer.classList.add('h5p-column-box-container');
+          wrapper.appendChild(boxContainer);
+        }
       }
 
       // Keep track of spacing for next separator
@@ -257,7 +283,9 @@
     var createHTML = function () {
       // Create wrapper
       wrapper = document.createElement('div');
-
+      boxContainer = document.createElement('div');
+      boxContainer.classList.add('h5p-column-box-container');
+      wrapper.appendChild(boxContainer);
       // Go though all contents
       for (var i = 0; i < params.content.length; i++) {
         var content = params.content[i];
@@ -271,7 +299,7 @@
         if (params.useSeparators) { // (check for global override)
 
           // Add separator between contents
-          addSeparator(content.content.library.split(' ')[0], content.useSeparator);
+          addSeparator(content.content.library.split(' ')[0], content.useSeparator, content.content);
         }
 
         // Add content
@@ -300,9 +328,8 @@
           disableFullscreen(instances[container.instanceIndex]);
         });
 
-
       // Add to DOM
-      $container.addClass('h5p-column').html('').append(wrapper);
+      $container.addClass('h5p-column h5p-theme').html('').append(wrapper);
     };
 
     /**
@@ -385,7 +412,7 @@
      * @return {boolean} True, if all answers have been given.
      */
     self.getAnswerGiven = function () {
-      return instances.reduce(function (prev, instance) { 
+      return instances.reduce(function (prev, instance) {
         return prev && (instance.getAnswerGiven ? instance.getAnswerGiven() : prev);
       }, true);
     };
@@ -471,17 +498,24 @@
      * @returns {Array} of xAPI data objects used to build a report
      */
     var getXAPIDataFromChildren = function (children) {
-      return children.map(function (child) {
-        if (typeof child.getXAPIData == 'function') {
-          return child.getXAPIData();
+      let childData = [];
+
+      children.forEach(child => {
+        if (child.libraryInfo.machineName === 'H5P.Row') {
+          childData.push(...child.getXAPIDataFromChildren());
         }
-      }).filter(function (data) {
+        else if (typeof child.getXAPIData == 'function') {
+          childData.push(child.getXAPIData());
+        }
+      });
+
+      return childData.filter(function (data) {
         return !!data;
       });
     };
 
     // Resize children to fit inside parent
-    bubbleDown(self, 'resize', instances);
+    ///bubbleDown(self, 'resize', instances);
 
     if (wrapper === undefined) {
       // Create wrapper and content
@@ -522,6 +556,7 @@
    * @param {string} eventName Name of the Event
    * @param {Object} target Target to trigger event on
    */
+  
   function bubbleUp(origin, eventName, target) {
     origin.on(eventName, function (event) {
       // Prevent target from sending event back down
@@ -541,7 +576,6 @@
   var isTasks = [
     'H5P.ImageHotspotQuestion',
     'H5P.Blanks',
-    'H5P.Crossword',
     'H5P.Essay',
     'H5P.SingleChoiceSet',
     'H5P.MultiChoice',
@@ -549,18 +583,7 @@
     'H5P.DragQuestion',
     'H5P.DragQuestionPapiJo',
     'H5P.DialogcardsPapiJo',
-    'H5P.Dictation',
-    "H5P.HighlightTheWords",
     'H5P.MarkTheWordsPapiJo',
-    'H5P.Summary',
-    'H5P.DragText',
-    'H5P.DragTextPapiJo',
-    'H5P.MemoryGame',    
-    'H5P.MultiMediaChoicePapiJo',
-    'H5P.QuestionSet',
-    'H5P.InteractiveVideo',
-    'H5P.CoursePresentation',
-    'H5P.MultiMediaChoice',
     'H5P.MultiMediaChoicePapiJo'
   ];
 
@@ -590,28 +613,23 @@
    * Definition of which content type have margins
    */
   var hasMargins = [
+    'H5P.AccordionPapiJo',
     'H5P.AdvancedText',
     'H5P.AudioRecorder',
     'H5P.Essay',
     'H5P.Link',
     'H5P.Accordion',
-    'H5P.AccordionPapiJo',
     'H5P.Table',
     'H5P.GuessTheAnswer',
     'H5P.Blanks',
+    'H5P.DragQuestionPapiJo',
     'H5P.MultiChoice',
     'H5P.TrueFalse',
     'H5P.DragQuestion',
-    'H5P.DragQuestionPapiJo',
     'H5P.Summary',
-    'H5P.DragText',
     'H5P.DragTextPapiJo',
-    'H5P.MarkTheWords',
+    'H5P.MarkTheWordsPapiJo',
     'H5P.ImageHotspotQuestion',
-    'H5P.MemoryGame',
-    'H5P.DialogcardsPapiJo',
-    'H5P.QuestionSet',
-    'H5P.DocumentationTool'
   ];
 
   /**
@@ -626,6 +644,7 @@
    */
   var hasBottomMargins = [
     'H5P.CoursePresentation',
+    'H5P.Dialogcards',
     'H5P.GuessTheAnswer',
     'H5P.ImageSlider'
   ];
