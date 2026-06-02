@@ -613,12 +613,12 @@
    * Definition of which content type have margins
    */
   var hasMargins = [
+    'H5P.Accordion',
     'H5P.AccordionPapiJo',
     'H5P.AdvancedText',
     'H5P.AudioRecorder',
     'H5P.Essay',
     'H5P.Link',
-    'H5P.Accordion',
     'H5P.Table',
     'H5P.GuessTheAnswer',
     'H5P.Blanks',
