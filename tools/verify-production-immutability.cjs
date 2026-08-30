@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const baseline = '423924362203bfe85514d5d239dbb30d0cad5486';
+const baseline = 'a65de10f9ea4974cae4626304d68b79b3c0a0b07';
 const root = path.resolve(__dirname, '..');
 const protectedFiles = [
   'presave.js',

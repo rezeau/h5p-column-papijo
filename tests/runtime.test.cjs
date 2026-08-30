@@ -552,14 +552,84 @@ test('Row task discovery assumes exactly Row -> row column -> task nesting', () 
   assert.deepEqual(column._triggerXAPIScoredCalls.map(({ raw, max }) => ({ raw, max })), [{ raw: 3, max: 5 }]);
 });
 
-test('Row construction throws when the expected getInstances API is missing', () => {
-  const harness = createHarness({ childSpecs: [{}] });
-  assert.throws(
-    () => harness.instantiate({
+test('Row without getInstances is ignored while a later ordinary task still completes', () => {
+  const harness = createHarness({ childSpecs: [{}, { isTask: true }] });
+  const column = harness.instantiate({
+    content: [
+      harness.makeColumnEntry('H5P.Row 1.3'),
+      harness.makeColumnEntry('H5P.CustomTask 1.0')
+    ]
+  });
+
+  assert.equal(column.getInstances()[0].listenerCount('xAPI'), 0);
+  assert.equal(column.getInstances()[1].listenerCount('xAPI'), 1);
+  column.getInstances()[1].emitScored(2, 3);
+  harness.flushTimers();
+  assert.deepEqual(column._triggerXAPIScoredCalls.map(({ raw, max }) => ({ raw, max })), [
+    { raw: 2, max: 3 }
+  ]);
+});
+
+test('Row null, empty, and malformed first-level instance results are ignored safely', () => {
+  const values = [undefined, null, [], {}, 'unexpected'];
+
+  for (const value of values) {
+    const harness = createHarness({
+      childFactory(content, index, helpers) {
+        return helpers.makeChild({
+          machineName: 'H5P.Row',
+          getInstances() { return value; }
+        });
+      }
+    });
+    const column = harness.instantiate({
       content: [harness.makeColumnEntry('H5P.Row 1.3')]
-    }),
-    (error) => error.name === 'TypeError' && /getInstances is not a function/.test(error.message)
-  );
+    });
+    assert.equal(column.getInstances().length, 1);
+    assert.equal(column.getInstances()[0].listenerCount('xAPI'), 0);
+  }
+});
+
+test('Row skips missing, empty, and malformed nested getInstances structures', () => {
+  const harness = createHarness({
+    childFactory(content, index, helpers) {
+      return helpers.makeChild({
+        machineName: 'H5P.Row',
+        getInstances() {
+          return [
+            null,
+            {},
+            { getInstances() { return undefined; } },
+            { getInstances() { return null; } },
+            { getInstances() { return {}; } },
+            { getInstances() { return []; } },
+            { getInstances() { return [null, {}]; } }
+          ];
+        }
+      });
+    }
+  });
+
+  const column = harness.instantiate({
+    content: [harness.makeColumnEntry('H5P.Row 1.3')]
+  });
+  assert.equal(column.getInstances()[0].listenerCount('xAPI'), 0);
+});
+
+test('Row getInstances exceptions from inside an existing method still propagate', () => {
+  const expected = new Error('row implementation failed');
+  const harness = createHarness({
+    childFactory(content, index, helpers) {
+      return helpers.makeChild({
+        machineName: 'H5P.Row',
+        getInstances() { throw expected; }
+      });
+    }
+  });
+
+  assert.throws(() => harness.instantiate({
+    content: [harness.makeColumnEntry('H5P.Row 1.3')]
+  }), (error) => error === expected);
 });
 
 test('getCurrentState returns an empty instances array for zero children', () => {
@@ -769,19 +839,95 @@ test('getXAPIData uses the Row-specific child extraction path', () => {
   assert.deepEqual(Array.from(column.getXAPIData().children), rowChildren);
 });
 
-test('getXAPIData throws when Row lacks getXAPIDataFromChildren', () => {
+test('Row without getXAPIDataFromChildren is ignored while ordinary child xAPI remains', () => {
+  const ordinaryData = { statement: { id: 'ordinary' } };
+  const harness = createHarness({
+    childSpecs: [
+      { getInstances() { return []; } },
+      { getXAPIData() { return ordinaryData; } }
+    ]
+  });
+  const column = harness.instantiate({
+    content: [
+      harness.makeColumnEntry('H5P.Row 1.3'),
+      harness.makeColumnEntry('H5P.AdvancedText 1.1')
+    ]
+  });
+
+  const data = column.getXAPIData();
+  assert.deepEqual(Array.from(data.children), [ordinaryData]);
+});
+
+test('Row null and malformed xAPI results are ignored safely', () => {
+  const values = [undefined, null, {}, 'unexpected'];
+
+  for (const value of values) {
+    const harness = createHarness({
+      childFactory(content, index, helpers) {
+        return helpers.makeChild({
+          machineName: 'H5P.Row',
+          getInstances() { return []; },
+          getXAPIDataFromChildren() { return value; }
+        });
+      }
+    });
+    const column = harness.instantiate({
+      content: [harness.makeColumnEntry('H5P.Row 1.3')]
+    });
+    assert.deepEqual(Array.from(column.getXAPIData().children), []);
+  }
+});
+
+test('a malformed Row does not block a later valid Row task or xAPI data', () => {
+  let nestedTask;
+  const validRowData = [{ statement: { id: 'valid-row-child' } }];
   const harness = createHarness({
     childFactory(content, index, helpers) {
-      return helpers.makeChild({ machineName: 'H5P.Row', getInstances() { return []; } });
+      if (index === 0) {
+        return helpers.makeChild({ machineName: 'H5P.Row' });
+      }
+
+      nestedTask = helpers.makeChild({ machineName: 'H5P.Blanks', isTask: true });
+      return helpers.makeChild({
+        machineName: 'H5P.Row',
+        getInstances() {
+          return [{ getInstances() { return [nestedTask]; } }];
+        },
+        getXAPIDataFromChildren() { return validRowData; }
+      });
+    }
+  });
+  const column = harness.instantiate({
+    content: [
+      harness.makeColumnEntry('H5P.Row 1.3'),
+      harness.makeColumnEntry('H5P.Row 1.3')
+    ]
+  });
+
+  nestedTask.emitScored(4, 5);
+  harness.flushTimers();
+  assert.deepEqual(column._triggerXAPIScoredCalls.map(({ raw, max }) => ({ raw, max })), [
+    { raw: 4, max: 5 }
+  ]);
+  assert.deepEqual(Array.from(column.getXAPIData().children), validRowData);
+});
+
+test('Row xAPI exceptions from inside an existing method still propagate', () => {
+  const expected = new Error('row xAPI implementation failed');
+  const harness = createHarness({
+    childFactory(content, index, helpers) {
+      return helpers.makeChild({
+        machineName: 'H5P.Row',
+        getInstances() { return []; },
+        getXAPIDataFromChildren() { throw expected; }
+      });
     }
   });
   const column = harness.instantiate({
     content: [harness.makeColumnEntry('H5P.Row 1.3')]
   });
-  assert.throws(
-    () => column.getXAPIData(),
-    (error) => error.name === 'TypeError' && /getXAPIDataFromChildren is not a function/.test(error.message)
-  );
+
+  assert.throws(() => column.getXAPIData(), (error) => error === expected);
 });
 
 test('child resize bubbles once to Column with bubblingUpwards set during dispatch', () => {

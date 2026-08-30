@@ -147,18 +147,31 @@
       }
 
       // For H5P.Row, we'll retrieve the actual task instances
-      if (library === 'H5P.Row') {
+      if (library === 'H5P.Row' && typeof instance.getInstances === 'function') {
         const rowColumns = instance.getInstances();
 
-        // A row can have several columns
-        for (const rowColumn of rowColumns) {
+        if (Array.isArray(rowColumns)) {
+          // A row can have several columns
+          for (const rowColumn of rowColumns) {
+            if (!rowColumn || typeof rowColumn.getInstances !== 'function') {
+              continue;
+            }
 
-          // And each row column can have several content types,
-          // some of which might be tasks
-          const rowColumnInstances = rowColumn.getInstances();
-          for (const rowColumnInstance of rowColumnInstances) {
-            if (Column.isTask(rowColumnInstance)) {
-              taskInstances.push(rowColumnInstance);
+            // And each row column can have several content types,
+            // some of which might be tasks
+            const rowColumnInstances = rowColumn.getInstances();
+            if (!Array.isArray(rowColumnInstances)) {
+              continue;
+            }
+
+            for (const rowColumnInstance of rowColumnInstances) {
+              const hasTaskIdentity = rowColumnInstance && (
+                rowColumnInstance.isTask !== undefined ||
+                (rowColumnInstance.libraryInfo && rowColumnInstance.libraryInfo.machineName)
+              );
+              if (hasTaskIdentity && Column.isTask(rowColumnInstance)) {
+                taskInstances.push(rowColumnInstance);
+              }
             }
           }
         }
@@ -516,7 +529,12 @@
 
       children.forEach(child => {
         if (child.libraryInfo.machineName === 'H5P.Row') {
-          childData.push(...child.getXAPIDataFromChildren());
+          if (typeof child.getXAPIDataFromChildren === 'function') {
+            const rowChildData = child.getXAPIDataFromChildren();
+            if (Array.isArray(rowChildData)) {
+              childData.push(...rowChildData);
+            }
+          }
         }
         else if (typeof child.getXAPIData == 'function') {
           childData.push(child.getXAPIData());
