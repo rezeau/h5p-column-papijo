@@ -334,6 +334,8 @@
 
           // Remove any fullscreen buttons
           disableFullscreen(instances[container.instanceIndex]);
+
+          container.hasAttached = true;
         });
 
       // Add to DOM

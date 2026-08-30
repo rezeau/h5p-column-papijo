@@ -109,29 +109,35 @@ test('first attach clears the target, appends one wrapper, and attaches each chi
   assert.deepEqual(Array.from(column.getInstances(), (child) => child.attachCalls.length), [1, 1]);
 });
 
-test('repeated attach to the same target reuses the wrapper and reattaches children', () => {
+test('repeated attach to the same target reuses the wrapper without reattaching children', () => {
   const harness = createHarness();
   const column = harness.instantiate({
     content: [harness.makeColumnEntry('H5P.AdvancedText 1.1')]
   });
   const target = harness.createContainer();
+  const instances = column.getInstances();
 
   column.attach(target.$element);
   const wrapper = target.element.children[0];
-  const childContainer = column.getInstances()[0].attachCalls[0].element;
+  const child = instances[0];
+  const childContainer = child.attachCalls[0].element;
   column.attach(target.$element);
 
   assert.strictEqual(target.element.children[0], wrapper);
-  assert.equal(column.getInstances()[0].attachCalls.length, 2);
-  assert.strictEqual(column.getInstances()[0].attachCalls[1].element, childContainer);
+  assert.strictEqual(column.getInstances(), instances);
+  assert.strictEqual(column.getInstances()[0], child);
+  assert.equal(child.attachCalls.length, 1);
+  assert.strictEqual(child.attachCalls[0].element, childContainer);
   assert.deepEqual(target.$element.htmlCalls, ['', '']);
 });
 
-test('attach to a different target moves the wrapper and reattaches children', () => {
+test('attach to a different target moves the wrapper without reattaching children', () => {
   const harness = createHarness();
   const column = harness.instantiate({
     content: [harness.makeColumnEntry('H5P.AdvancedText 1.1')]
   });
+  const instances = column.getInstances();
+  const child = instances[0];
   const firstTarget = harness.createContainer();
   const secondTarget = harness.createContainer();
 
@@ -141,7 +147,46 @@ test('attach to a different target moves the wrapper and reattaches children', (
 
   assert.equal(firstTarget.element.children.length, 0);
   assert.strictEqual(secondTarget.element.children[0], wrapper);
-  assert.equal(column.getInstances()[0].attachCalls.length, 2);
+  assert.strictEqual(column.getInstances(), instances);
+  assert.strictEqual(column.getInstances()[0], child);
+  assert.equal(child.attachCalls.length, 1);
+});
+
+test('three or more repeated attaches still attach each child only once', () => {
+  const harness = createHarness();
+  const column = harness.instantiate({
+    content: [harness.makeColumnEntry('H5P.AdvancedText 1.1')]
+  });
+  const firstTarget = harness.createContainer();
+  const secondTarget = harness.createContainer();
+
+  column.attach(firstTarget.$element);
+  column.attach(firstTarget.$element);
+  column.attach(secondTarget.$element);
+  column.attach(secondTarget.$element);
+
+  assert.equal(column.getInstances()[0].attachCalls.length, 1);
+  assert.equal(firstTarget.element.children.length, 0);
+  assert.equal(secondTarget.element.children.length, 1);
+});
+
+test('multiple children each attach once across repeated target changes', () => {
+  const harness = createHarness();
+  const column = harness.instantiate({
+    content: [
+      harness.makeColumnEntry('H5P.AdvancedText 1.1'),
+      harness.makeColumnEntry('H5P.Image 1.1'),
+      harness.makeColumnEntry('H5P.Blanks 1.14')
+    ]
+  });
+  const firstTarget = harness.createContainer();
+  const secondTarget = harness.createContainer();
+
+  column.attach(firstTarget.$element);
+  column.attach(firstTarget.$element);
+  column.attach(secondTarget.$element);
+
+  assert.deepEqual(Array.from(column.getInstances(), (child) => child.attachCalls.length), [1, 1, 1]);
 });
 
 test('getScore and getMaxScore return zero with no children', () => {
@@ -776,11 +821,27 @@ test('Column resize propagates to all children and produces bounded bounce-back 
 
 test('Video construction forces visuals.fit to false', () => {
   const harness = createHarness();
-  const visuals = { fit: true };
-  harness.instantiate({
+  let fit = true;
+  let fitAssignments = 0;
+  const visuals = {};
+  Object.defineProperty(visuals, 'fit', {
+    get() { return fit; },
+    set(value) {
+      fit = value;
+      fitAssignments++;
+    }
+  });
+  const column = harness.instantiate({
     content: [harness.makeColumnEntry('H5P.Video 1.6', { visuals })]
   });
+  const target = harness.createContainer();
+  column.attach(target.$element);
+  column.attach(target.$element);
+  column.attach(target.$element);
+
   assert.equal(visuals.fit, false);
+  assert.equal(fitAssignments, 1);
+  assert.equal(column.getInstances()[0].attachCalls.length, 1);
 });
 
 test('Image loaded event triggers a Column resize', () => {
@@ -788,10 +849,19 @@ test('Image loaded event triggers a Column resize', () => {
   const column = harness.instantiate({
     content: [harness.makeColumnEntry('H5P.Image 1.1')]
   });
+  const target = harness.createContainer();
+  const image = column.getInstances()[0];
+  const loadedListeners = image.listenerCount('loaded');
+  const resizeListeners = image.listenerCount('resize');
+  column.attach(target.$element);
+  column.attach(target.$element);
   let parentResizeCount = 0;
   column.on('resize', () => parentResizeCount++);
 
-  column.getInstances()[0].trigger('loaded');
+  assert.equal(image.listenerCount('loaded'), loadedListeners);
+  assert.equal(image.listenerCount('resize'), resizeListeners);
+  assert.equal(image.attachCalls.length, 1);
+  image.trigger('loaded');
   assert.equal(parentResizeCount, 2);
 });
 
@@ -802,10 +872,13 @@ test('Collage animation-frame cleanup removes style from its box container', () 
   });
   const target = harness.createContainer();
   column.attach(target.$element);
+  column.attach(target.$element);
   const wrapper = target.element.children[0];
   const boxContainer = wrapper.children[0];
   boxContainer.setAttribute('style', 'height: 10px');
 
+  assert.equal(harness.animationFrameQueue.length, 1);
+  assert.equal(column.getInstances()[0].attachCalls.length, 1);
   harness.flushAnimationFrames();
   assert.equal(boxContainer.hasAttribute('style'), false);
 });
@@ -819,8 +892,12 @@ test('CoursePresentation fullscreen button is removed during attach', () => {
     content: [harness.makeColumnEntry('H5P.CoursePresentation 1.27')]
   });
 
-  column.attach(harness.createContainer().$element);
+  const target = harness.createContainer();
+  column.attach(target.$element);
+  column.attach(target.$element);
+  column.attach(target.$element);
   assert.equal(removes, 1);
+  assert.equal(column.getInstances()[0].attachCalls.length, 1);
 });
 
 test('InteractiveVideo fullscreen control is removed after controls event', () => {
@@ -833,8 +910,12 @@ test('InteractiveVideo fullscreen control is removed after controls event', () =
   });
   const child = column.getInstances()[0];
 
-  column.attach(harness.createContainer().$element);
+  const target = harness.createContainer();
+  column.attach(target.$element);
+  column.attach(target.$element);
   assert.equal(removes, 0);
+  assert.equal(child.listenerCount('controls'), 1);
+  assert.equal(child.attachCalls.length, 1);
   child.trigger('controls');
   assert.equal(removes, 1);
 });
