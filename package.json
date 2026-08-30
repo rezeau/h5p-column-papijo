@@ -5,7 +5,7 @@
   "description": "Characterization harness for the unchanged H5P.ColumnPapiJo 1.17.3 runtime.",
   "scripts": {
     "test": "node --test",
-    "check:js": "node --check scripts/h5p-column.js && node --check presave.js",
+    "check:js": "node --check scripts/h5p-column.js && node --check presave.js && node --check tests/browser/resize-probe.js",
     "check:json": "node tools/verify-json.cjs",
     "check:production": "node tools/verify-production-immutability.cjs",
     "verify": "npm run check:js && npm run check:json && npm run check:production && npm test"
