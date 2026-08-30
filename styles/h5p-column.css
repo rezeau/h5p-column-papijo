@@ -1,29 +1,50 @@
+.h5p-column {
+  background-color: var(--h5p-theme-background);
+}
+
+.h5p-container.h5p-standalone.h5p-column {
+  padding: var(--h5p-theme-spacing-s);
+
+  @media (max-width: 576px) {
+    padding: 0;
+  }
+}
+
 .h5p-column-content {
   position: relative;
+}
+
+.h5p-column-box-container {
+  margin: var(--h5p-theme-spacing-xs) var(--h5p-theme-spacing-xs);
+  box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.05);
+  border: solid 1px var(--h5p-theme-stroke-1);
+  border-radius: var(--h5p-theme-border-radius-large);
+  padding: var(--h5p-theme-spacing-xs);
+  background-color: var(--h5p-theme-ui-base);
+}
+
+.h5p-column-content.h5p-image-slider {
+  padding: 0;
+}
+
+.h5p-column-content .table {
+  padding: 0px;
+  margin: 0px;
+  border-collapse: collapse;
+  border-color: #494949;
+  border-spacing: 0;
+  border-width: 1px;
 }
 .h5p-column-content.h5p-table,
 .h5p-column-content.h5p-advanced-text,
 .h5p-column-content.h5p-link {
-  margin-top: 1em;
-  margin-bottom: 1em;
-  padding-left: 1em;
-  padding-right: 1em;
+  margin-top: var(--h5p-theme-spacing-s);
+  margin-bottom: var(--h5p-theme-spacing-s);
+  padding-left: var(--h5p-theme-spacing-s);
+  padding-right: var(--h5p-theme-spacing-s);
 }
 .h5p-column-content.h5p-video > video {
   width: 100%;
-}
-
-.h5p-column-ruler {
-  border-bottom: 2px solid #eee;
-}
-.h5p-column-space-before-n-after {
-  margin: 1em 0;
-}
-.h5p-column-space-before {
-  margin: 1em 0 0;
-}
-.h5p-column-space-after {
-  margin: 0 0 1em;
 }
 
 /* Align question texts when there's no frame */
@@ -52,6 +73,20 @@
 /* QS is a bit to eager... */
 .h5p-no-frame > .h5p-column > div > .h5p-column-content > .questionset .h5p-question > *:first-child {
   margin-top: 1em;
+}
+
+.h5p-column .questionset {
+  padding: 0;
+  background-color: var(--h5p-theme-ui-base);
+}
+.h5p-column .question-container {
+  all: unset;
+}
+
+.h5p-column .h5p-theme .questionset-results {
+  margin: calc(-1*var(--h5p-theme-spacing-xs));
+  border: solid 1px var(--h5p-theme-stroke-1);
+  border-radius: var(--h5p-theme-border-radius-large);
 }
 
 /* Align text content when there's no frame */
@@ -87,56 +122,15 @@
   display: none;
 }
 
-.h5p-interactive-book .h5p-column-content:first-child {
-  margin-top: 1em!important;
+/* Fix for footer in QuestionSet and DialogCards */
+.h5p-column.h5p-theme .qs-footer.h5p-navigation,
+.h5p-column-content.h5p-dialogcards .h5p-navigation {
+  margin: 0;
+  padding-bottom: var(--h5p-theme-spacing-s);
 }
 
-/* Custom override css rules for H5P contents inside the papi Jo Column. */
-.h5p-image-hotspot {
-  background: transparent!important;
-}
-/* Hack to fix bug with Chrome-based browsers. */
-.h5p-audio {
-  height: revert!important;
-}
-
-/*Hack to display image with a reasonable width in interactive book */
-.h5p-column-content.h5p-image {
-  //width: fit-content!important;
-}
-
-/*Hack to provide a right margin in Browse and Match modes */
-.h5p-column-content {
-  margin-right: 1em!important;
-  //padding-right: 1em!important;
-}
-
-.h5p-column-content.h5p-image-hotspots,
-.h5p-column-content.h5p-audio-wrapper,
-.h5p-column-content .h5p-audio-wrapper,
-.h5p-column-content .h5p-dragquestion-has-no-background {
-  padding-right: 1em!important;
-}
-
-/*Hack to display zoomed in image and show the zoom-out icon*/
-.h5p-question-image.h5p-question-image-fill-width .h5p-question-image-scalable {
-  width: 98%!important;
-}
-
-.h5p-highlight-the-words-text-container {
-  font-size: 1em!important;
-}
-
-.h5p-interactive-video .h5p-control.h5p-playbackRate {
-display:none!important;
-visibility:hidden!important;
-}
-
-.h5p-interactive-video .h5p-control {
-//display:none!important;
-//visibility:hidden!important;
-}
-
-.h5p-image-hotspot-popup-content {
-  font-size: 0.75em!important;
+/* In LB we can get two levels of columns so we don't want the background color
+  on the "inner" column. */
+.h5p-column .h5p-column {
+  background-color: revert;
 }

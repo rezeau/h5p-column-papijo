@@ -1,24 +1,24 @@
 {
-  "semantics":[
+  "semantics": [
     {
-      "label":"Lista do Conteúdo da Coluna",
-      "entity":"conteúdo",
-      "field":{
-        "fields":[
+      "label": "Lista do conteúdo da coluna",
+      "entity": "conteúdo",
+      "field": {
+        "fields": [
           {
-            "label":"Conteúdo"
+            "label": "Conteúdo"
           },
           {
-            "label":"Separar conteúdo com uma linha horizontal",
-            "options":[
+            "label": "Separar conteúdos com uma linha horizontal",
+            "options": [
               {
-                "label":"Automático (predefinição)"
+                "label": "Automático (predefinição)"
               },
               {
-                "label":"Nunca utilizar a regra acima"
+                "label": "Nunca usar a régua acima"
               },
               {
-                "label":"Utilizar sempre a regra acima"
+                "label": "Utilizar sempre a régua acima"
               }
             ]
           }

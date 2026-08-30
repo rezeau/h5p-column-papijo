@@ -1,24 +1,24 @@
 {
   "semantics":[
     {
-      "label":"List of Column Content",
+      "label":"Sütun İçerikler Listesi",
       "entity":"content",
       "field":{
         "fields":[
           {
-            "label":"Content"
+            "label":"İçerik"
           },
           {
-            "label":"Separate content with a horizontal ruler",
+            "label":"İçerikleri bir cetvelle yatay olarak ayırın",
             "options":[
               {
-                "label":"Automatic (default)"
+                "label":"Otomatik (varsayılan)"
               },
               {
-                "label":"Never use ruler above"
+                "label":"Asla yukarıdaki cetveli kullanma"
               },
               {
-                "label":"Always use ruler above"
+                "label":"Her zaman yukarıdaki cetveli kullan"
               }
             ]
           }

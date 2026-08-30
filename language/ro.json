@@ -1,24 +1,24 @@
 {
-  "semantics":[
+  "semantics": [
     {
-      "label":"List of Column Content",
-      "entity":"content",
-      "field":{
-        "fields":[
+      "label": "Listă de conținut în coloană",
+      "entity": "conținut",
+      "field": {
+        "fields": [
           {
-            "label":"Content"
+            "label": "Conținut"
           },
           {
-            "label":"Separate content with a horizontal ruler",
-            "options":[
+            "label": "Separă conținutul cu o linie orizontală",
+            "options": [
               {
-                "label":"Automatic (default)"
+                "label": "Automat (implicit)"
               },
               {
-                "label":"Never use ruler above"
+                "label": "Nu utiliza niciodată linie deasupra"
               },
               {
-                "label":"Always use ruler above"
+                "label": "Utilizează întotdeauna linie deasupra"
               }
             ]
           }

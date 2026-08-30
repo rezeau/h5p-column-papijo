@@ -1,24 +1,24 @@
 {
-  "semantics":[
+  "semantics": [
     {
-      "label":"List of Column Content",
-      "entity":"content",
-      "field":{
-        "fields":[
+      "label": "Lista zawartości kolumny",
+      "entity": "zawartość",
+      "field": {
+        "fields": [
           {
-            "label":"Content"
+            "label": "Zawartość"
           },
           {
-            "label":"Separate content with a horizontal ruler",
-            "options":[
+            "label": "Oddziel zawartość poziomą linijką",
+            "options": [
               {
-                "label":"Automatic (default)"
+                "label": "Automatyczne (domyślnie)"
               },
               {
-                "label":"Never use ruler above"
+                "label": "Nigdy nie używaj linijki powyżej"
               },
               {
-                "label":"Always use ruler above"
+                "label": "Zawsze używaj linijki powyżej"
               }
             ]
           }

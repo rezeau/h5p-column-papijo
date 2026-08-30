@@ -1,24 +1,24 @@
 {
-  "semantics":[
+  "semantics": [
     {
-      "label":"Seznam obsahu sloupců",
-      "entity":"obsah",
-      "field":{
-        "fields":[
+      "label": "Seznam obsahu sloupců",
+      "entity": "obsah",
+      "field": {
+        "fields": [
           {
-            "label":"Obsah"
+            "label": "Obsah"
           },
           {
-            "label":"Oddělit obsah vodorovným pravítkem",
-            "options":[
+            "label": "Oddělit obsah vodorovnou čárou",
+            "options": [
               {
-                "label":"Automaticky (výchozí)"
+                "label": "Automaticky (výchozí)"
               },
               {
-                "label":"Nikdy nepoužívat pravítko výše"
+                "label": "Nikdy neoddělovat vodorovnou čarou shora"
               },
               {
-                "label":"Vždy používat pravítko výše"
+                "label": "Vždy oddělovat vodorovnou čarou shora"
               }
             ]
           }

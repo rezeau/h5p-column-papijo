@@ -2,14 +2,14 @@
   "semantics": [
     {
       "label": "Lista de conteúdo da coluna",
-      "entity": "content",
+      "entity": "conteúdo",
       "field": {
         "fields": [
           {
             "label": "Conteúdo"
           },
           {
-            "label": "Separar conteúdos com uma linha horizontal",
+            "label": "Separar os conteúdos com uma linha horizontal",
             "options": [
               {
                 "label": "Automático (padrão)"

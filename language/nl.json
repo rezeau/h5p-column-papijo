@@ -1,24 +1,24 @@
 {
-  "semantics":[
+  "semantics": [
     {
-      "label":"Lijst van de column inhoud",
-      "entity":"inhoud",
-      "field":{
-        "fields":[
+      "label": "Lijst met kolominhoud",
+      "entity": "inhoud",
+      "field": {
+        "fields": [
           {
-            "label":"Inhoud"
+            "label": "Inhoud"
           },
           {
-            "label":"Scheid de inhoud met de horizontale lijn",
-            "options":[
+            "label": "Scheid de inhoud met een horizontale lijn",
+            "options": [
               {
-                "label":"Automatisch (standaard)"
+                "label": "Automatisch (standaard)"
               },
               {
-                "label":"Gebruik nooit een lijn erboven"
+                "label": "Gebruik nooit een lijn erboven"
               },
               {
-                "label":"Gebruik altijd een lijn erboven"
+                "label": "Gebruik altijd een lijn erboven"
               }
             ]
           }

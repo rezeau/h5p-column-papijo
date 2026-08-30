@@ -126,10 +126,10 @@
 
       // Create content instance
       var instance = H5P.newRunnable(content, id, undefined, true, contentData);
-/*
-      Bubble resize events
+
+      // Bubble resize events
       bubbleUp(instance, 'resize', self);
-*/
+
       // Keep track of all instances that are tasks
       const taskInstances = [];
 
@@ -515,7 +515,7 @@
     };
 
     // Resize children to fit inside parent
-    ///bubbleDown(self, 'resize', instances);
+    bubbleDown(self, 'resize', instances);
 
     if (wrapper === undefined) {
       // Create wrapper and content
@@ -582,9 +582,18 @@
     'H5P.TrueFalse',
     'H5P.DragQuestion',
     'H5P.DragQuestionPapiJo',
-    'H5P.DialogcardsPapiJo',
+    'H5P.Summary',
+    'H5P.DragText',
+	'H5P.DragTextPapiJo',    
+    'H5P.MarkTheWords',
     'H5P.MarkTheWordsPapiJo',
-    'H5P.MultiMediaChoicePapiJo'
+    'H5P.MemoryGame',
+    'H5P.QuestionSet',
+    'H5P.InteractiveVideo',
+    'H5P.CoursePresentation',
+    'H5P.DocumentationTool',
+    'H5P.MultiMediaChoice',
+    'H5P.MultiMediaChoicePapiJo'    
   ];
 
   /**
@@ -613,23 +622,32 @@
    * Definition of which content type have margins
    */
   var hasMargins = [
-    'H5P.Accordion',
-    'H5P.AccordionPapiJo',
     'H5P.AdvancedText',
+    'H5P.AdvancedTextPapiJo',
     'H5P.AudioRecorder',
     'H5P.Essay',
     'H5P.Link',
+    'H5P.Accordion',
+    'H5P.AccordionPapiJo',
     'H5P.Table',
     'H5P.GuessTheAnswer',
     'H5P.Blanks',
-    'H5P.DragQuestionPapiJo',
     'H5P.MultiChoice',
     'H5P.TrueFalse',
     'H5P.DragQuestion',
+    'H5P.DragQuestionPapiJo',
     'H5P.Summary',
+    'H5P.DragText',
     'H5P.DragTextPapiJo',
+    'H5P.MarkTheWords',
     'H5P.MarkTheWordsPapiJo',
     'H5P.ImageHotspotQuestion',
+    'H5P.MemoryGame',
+    'H5P.Dialogcards',
+    'H5P.DialogcardsPapiJo',
+    'H5P.QuestionSet',
+    'H5P.QuestionSetPapiJo',
+    'H5P.DocumentationTool'
   ];
 
   /**

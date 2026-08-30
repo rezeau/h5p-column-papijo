@@ -1,24 +1,24 @@
 {
-  "semantics":[
+  "semantics": [
     {
-      "label":"List of Column Content",
-      "entity":"content",
-      "field":{
-        "fields":[
+      "label": "Liste med kolonneinnhald",
+      "entity": "innhald",
+      "field": {
+        "fields": [
           {
-            "label":"Content"
+            "label": "Innhald"
           },
           {
-            "label":"Separate content with a horizontal ruler",
-            "options":[
+            "label": "Skil ut innhald med ei horisontal linje",
+            "options": [
               {
-                "label":"Automatic (default)"
+                "label": "Automatisk (standard)"
               },
               {
-                "label":"Never use ruler above"
+                "label": "Aldri bruk linje over"
               },
               {
-                "label":"Always use ruler above"
+                "label": "Alltid bruk linje over"
               }
             ]
           }
