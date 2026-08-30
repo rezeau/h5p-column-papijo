@@ -4,17 +4,22 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const baseline = '174725530235e4d26ac4b611e5c45bb9b9307779';
+const baseline = 'b1433897f6ff84d70e3da01d27096ecc32f618d9';
 const root = path.resolve(__dirname, '..');
 const protectedFiles = [
-  'scripts/h5p-column.js',
   'semantics.json',
-  'presave.js',
   'styles/h5p-column.css',
   'library.json',
   'icon.svg',
   'README.md'
 ];
+
+const languageFiles = execFileSync(
+  'git',
+  ['ls-tree', '-r', '--name-only', baseline, '--', 'language'],
+  { cwd: root, encoding: 'utf8' }
+).trim().split(/\r?\n/).filter(Boolean);
+protectedFiles.push(...languageFiles);
 
 const changed = [];
 for (const file of protectedFiles) {
@@ -30,9 +35,9 @@ for (const file of protectedFiles) {
 }
 
 if (changed.length > 0) {
-  console.error(`Production immutability check failed: ${changed.join(', ')}`);
+  console.error(`Unaffected production immutability check failed: ${changed.join(', ')}`);
   process.exitCode = 1;
 }
 else {
-  console.log(`Production immutability check passed against ${baseline} (${protectedFiles.length} files).`);
+  console.log(`Unaffected production immutability check passed against ${baseline} (${protectedFiles.length} files).`);
 }

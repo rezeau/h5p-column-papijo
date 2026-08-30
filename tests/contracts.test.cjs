@@ -8,22 +8,22 @@ const vm = require('node:vm');
 
 const root = path.resolve(__dirname, '..');
 
-test('presave registers official Column but not ColumnPapiJo', () => {
+test('presave registers ColumnPapiJo but not official Column', () => {
   const source = fs.readFileSync(path.join(root, 'presave.js'), 'utf8');
   const context = vm.createContext({});
   vm.runInContext(source, context, { filename: 'presave.js' });
 
-  assert.equal(typeof context.H5PPresave['H5P.Column'], 'function');
-  assert.equal(context.H5PPresave['H5P.ColumnPapiJo'], undefined);
+  assert.equal(typeof context.H5PPresave['H5P.ColumnPapiJo'], 'function');
+  assert.equal(context.H5PPresave['H5P.Column'], undefined);
 });
 
-test('lookup by the ColumnPapiJo machine name cannot invoke the current presave hook', () => {
+test('lookup by the ColumnPapiJo machine name resolves the presave hook', () => {
   const source = fs.readFileSync(path.join(root, 'presave.js'), 'utf8');
   const context = vm.createContext({});
   vm.runInContext(source, context, { filename: 'presave.js' });
 
   const machineName = 'H5P.ColumnPapiJo';
-  assert.equal(context.H5PPresave[machineName], undefined);
+  assert.equal(typeof context.H5PPresave[machineName], 'function');
 });
 
 test('semantics retains exactly the eight agreed PapiJo child options', () => {

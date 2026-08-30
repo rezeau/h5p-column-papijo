@@ -46,6 +46,9 @@
     // Keep track of result for each task
     var tasksResultEvent = [];
 
+    // Identify the current scoring attempt
+    var scoringAttempt = 0;
+
     // Keep track of last content's margin state
     var previousHasMargin;
 
@@ -97,8 +100,11 @@
         // Check to see if we're done
         if (numTasksCompleted === numTasks) {
           // Run this after the current event is sent
+          var currentScoringAttempt = scoringAttempt;
           setTimeout(function () {
-            completed(); // Done
+            if (currentScoringAttempt === scoringAttempt) {
+              completed(); // Done
+            }
           }, 0);
         }
       };
@@ -111,8 +117,9 @@
      * @private
      * @param {Object} content Parameters
      * @param {Object} [contentData] Content Data
+     * @param {number} contentIndex Original index in the semantic content list
      */
-    var addRunnable = function (content, contentData) {
+    var addRunnable = function (content, contentData, contentIndex) {
       // Create container for content
       var container = document.createElement('div');
       container.classList.add('h5p-column-content');
@@ -182,6 +189,7 @@
         hasAttached: false,
         container: container,
         instanceIndex: instances.length - 1,
+        contentIndex: contentIndex,
       });
 
       // Add to DOM wrapper
@@ -303,7 +311,7 @@
         }
 
         // Add content
-        addRunnable(content.content, grabContentData(i));
+        addRunnable(content.content, grabContentData(i), i);
       }
     };
 
@@ -352,7 +360,7 @@
         if (instance.getCurrentState instanceof Function ||
             typeof instance.getCurrentState === 'function') {
 
-          state.instances[i] = instance.getCurrentState();
+          state.instances[instanceContainers[i].contentIndex] = instance.getCurrentState();
         }
       }
 
@@ -445,6 +453,10 @@
           instance.resetTask();
         }
       });
+
+      scoringAttempt++;
+      numTasksCompleted = 0;
+      tasksResultEvent = [];
     };
 
     /**
@@ -589,6 +601,7 @@
     'H5P.MarkTheWordsPapiJo',
     'H5P.MemoryGame',
     'H5P.QuestionSet',
+    'H5P.QuestionSetPapiJo',
     'H5P.InteractiveVideo',
     'H5P.CoursePresentation',
     'H5P.DocumentationTool',

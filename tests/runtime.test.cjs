@@ -276,7 +276,7 @@ test('resetTask delegates in child order and skips children without resetTask', 
   assert.deepEqual(calls, ['first', 'third']);
 });
 
-test('reset preserves completion caches and permits premature post-reset completion', () => {
+test('reset clears completion caches and requires every task to complete again', () => {
   const resets = [];
   const harness = createHarness({
     childSpecs: [
@@ -303,8 +303,44 @@ test('reset preserves completion caches and permits premature post-reset complet
   harness.flushTimers();
 
   assert.deepEqual(column._triggerXAPIScoredCalls.map(({ raw, max }) => ({ raw, max })), [
+    { raw: 3, max: 5 }
+  ]);
+
+  second.emitScored(1, 3);
+  harness.flushTimers();
+
+  assert.deepEqual(column._triggerXAPIScoredCalls.map(({ raw, max }) => ({ raw, max })), [
     { raw: 3, max: 5 },
-    { raw: 2, max: 5 }
+    { raw: 1, max: 5 }
+  ]);
+});
+
+test('repeated reset is safe and invalidates deferred completion from older attempts', () => {
+  const harness = createHarness({ childSpecs: [{ isTask: true }, { isTask: true }] });
+  const column = harness.instantiate({
+    content: [
+      harness.makeColumnEntry('H5P.CustomTaskA 1.0'),
+      harness.makeColumnEntry('H5P.CustomTaskB 1.0')
+    ]
+  });
+  const [first, second] = column.getInstances();
+
+  first.emitScored(5, 5);
+  second.emitScored(5, 5);
+  assert.equal(harness.timerQueue.length, 1);
+
+  column.resetTask();
+  column.resetTask();
+  harness.flushTimers();
+  assert.equal(column._triggerXAPIScoredCalls, undefined);
+
+  first.emitScored(1, 5);
+  harness.flushTimers();
+  assert.equal(column._triggerXAPIScoredCalls, undefined);
+  second.emitScored(2, 5);
+  harness.flushTimers();
+  assert.deepEqual(column._triggerXAPIScoredCalls.map(({ raw, max }) => ({ raw, max })), [
+    { raw: 3, max: 10 }
   ]);
 });
 
@@ -424,12 +460,12 @@ test('all four PapiJo fallback task names are recognized without instance.isTask
   }
 });
 
-test('QuestionSetPapiJo needs instance.isTask because it is absent from fallback names', () => {
+test('QuestionSetPapiJo is recognized by fallback without instance.isTask', () => {
   const absentHarness = createHarness({ childSpecs: [{}] });
   const absent = absentHarness.instantiate({
     content: [absentHarness.makeColumnEntry('H5P.QuestionSetPapiJo 1.21')]
   });
-  assert.equal(absent.getInstances()[0].listenerCount('xAPI'), 0);
+  assert.equal(absent.getInstances()[0].listenerCount('xAPI'), 1);
 
   const explicitHarness = createHarness({ childSpecs: [{ isTask: true }] });
   const explicit = explicitHarness.instantiate({
@@ -487,7 +523,7 @@ test('getCurrentState returns an empty instances array for zero children', () =>
   assert.deepEqual(Array.from(state.instances), []);
 });
 
-test('getCurrentState saves implementing child states in dense runtime order', () => {
+test('getCurrentState saves dense content in matching semantic positions', () => {
   const harness = createHarness({
     childSpecs: [
       { currentState: { answer: 'one' } },
@@ -522,7 +558,7 @@ test('getCurrentState reuses and mutates the supplied previousState object', () 
   assert.equal(previousState.marker, 'same object');
 });
 
-test('a skipped semantic entry shifts restoration and saving to different indices', () => {
+test('a skipped first semantic entry keeps restoration and saving at the original index', () => {
   const slotZero = { slot: 0 };
   const slotOne = { slot: 1 };
   const previousState = { instances: [slotZero, slotOne] };
@@ -536,8 +572,85 @@ test('a skipped semantic entry shifts restoration and saving to different indice
 
   assert.strictEqual(harness.newRunnableCalls[0].contentData.previousState, slotOne);
   const state = column.getCurrentState();
-  assert.deepEqual(state.instances[0], { saved: 'dense-zero' });
-  assert.strictEqual(state.instances[1], slotOne);
+  assert.strictEqual(state.instances[0], slotZero);
+  assert.deepEqual(state.instances[1], { saved: 'dense-zero' });
+});
+
+test('a skipped semantic entry between children preserves both semantic state slots', () => {
+  const previousState = {
+    instances: [
+      { previous: 'first' },
+      { previous: 'skipped' },
+      { previous: 'third' }
+    ]
+  };
+  const harness = createHarness({
+    childSpecs: [
+      { currentState: { current: 'first' } },
+      { currentState: { current: 'third' } }
+    ]
+  });
+  const column = harness.instantiate({
+    content: [
+      harness.makeColumnEntry('H5P.Blanks 1.14'),
+      {},
+      harness.makeColumnEntry('H5P.MultiChoice 1.16')
+    ]
+  }, 17, { previousState });
+
+  assert.equal(harness.newRunnableCalls[0].contentData.previousState.previous, 'first');
+  assert.equal(harness.newRunnableCalls[1].contentData.previousState.previous, 'third');
+  const state = column.getCurrentState();
+  assert.deepEqual(state.instances[0], { current: 'first' });
+  assert.deepEqual(state.instances[1], { previous: 'skipped' });
+  assert.deepEqual(state.instances[2], { current: 'third' });
+});
+
+test('a skipped last semantic entry does not displace the preceding child state', () => {
+  const previousState = {
+    instances: [{ previous: 'first' }, { previous: 'skipped-last' }]
+  };
+  const harness = createHarness({ childSpecs: [{ currentState: { current: 'first' } }] });
+  const column = harness.instantiate({
+    content: [
+      harness.makeColumnEntry('H5P.Blanks 1.14'),
+      {}
+    ]
+  }, 17, { previousState });
+
+  const state = column.getCurrentState();
+  assert.deepEqual(state.instances[0], { current: 'first' });
+  assert.deepEqual(state.instances[1], { previous: 'skipped-last' });
+});
+
+test('state save and restore round-trip retains semantic-slot alignment', () => {
+  const firstHarness = createHarness({
+    childSpecs: [
+      { currentState: { answer: 'first' } },
+      { currentState: { answer: 'third' } }
+    ]
+  });
+  const firstColumn = firstHarness.instantiate({
+    content: [
+      firstHarness.makeColumnEntry('H5P.Blanks 1.14'),
+      {},
+      firstHarness.makeColumnEntry('H5P.MultiChoice 1.16')
+    ]
+  });
+  const saved = firstColumn.getCurrentState();
+
+  const secondHarness = createHarness();
+  secondHarness.instantiate({
+    content: [
+      secondHarness.makeColumnEntry('H5P.Blanks 1.14'),
+      {},
+      secondHarness.makeColumnEntry('H5P.MultiChoice 1.16')
+    ]
+  }, 17, { previousState: saved });
+
+  assert.deepEqual(secondHarness.newRunnableCalls[0].contentData.previousState, { answer: 'first' });
+  assert.deepEqual(secondHarness.newRunnableCalls[1].contentData.previousState, { answer: 'third' });
+  assert.equal(1 in saved.instances, false);
 });
 
 test('previous-state restoration handles absent and shorter state arrays without adding state', () => {

@@ -7,7 +7,7 @@ var H5PPresave = H5PPresave || {};
  * @param finished
  * @constructor
  */
-H5PPresave['H5P.Column'] = function (content, finished) {
+H5PPresave['H5P.ColumnPapiJo'] = function (content, finished) {
   var presave = H5PEditor.Presave;
   if (isContentInvalid()) {
     throw new presave.exceptions.InvalidContentSemanticsException('Invalid Column Error');
