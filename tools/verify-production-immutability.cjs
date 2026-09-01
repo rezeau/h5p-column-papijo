@@ -4,16 +4,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const baseline = 'c9e1693703fe49fb06fdf4c624a8397c150362f0';
+const baseline = '315e3658a07d88f8526b32e2d7490725624df224';
 const root = path.resolve(__dirname, '..');
 const protectedFiles = [
   'scripts/h5p-column.js',
   'presave.js',
   'semantics.json',
   'styles/h5p-column.css',
-  'library.json',
   'icon.svg',
-  'README.md'
 ];
 
 const languageFiles = execFileSync(

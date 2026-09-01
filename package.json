@@ -1,14 +1,16 @@
 {
   "name": "h5p-column-papijo-characterization",
   "private": true,
-  "version": "0.0.0",
-  "description": "Characterization harness for the unchanged H5P.ColumnPapiJo 1.17.3 runtime.",
+  "version": "1.17.4",
+  "description": "Characterization and release tooling for H5P.ColumnPapiJo 1.17.4.",
   "scripts": {
     "test": "node --test",
+    "build": "pwsh -NoProfile -File tools/build-release-package.ps1",
     "check:js": "node --check scripts/h5p-column.js && node --check presave.js && node --check tests/browser/resize-probe.js",
     "check:json": "node tools/verify-json.cjs",
     "check:production": "node tools/verify-production-immutability.cjs",
-    "verify": "npm run check:js && npm run check:json && npm run check:production && npm test"
+    "check:release": "node tools/verify-release-metadata.cjs",
+    "verify": "npm run check:js && npm run check:json && npm run check:production && npm run check:release && npm test"
   },
   "engines": {
     "node": ">=22"

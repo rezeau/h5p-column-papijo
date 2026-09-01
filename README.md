@@ -5,6 +5,10 @@ Display a list of content in a column format, each one below the next one.
 
 Column "Papi Jo" (the H5P.ColumnPapiJo library) is a modified version which accepts the "papi Jo" versions of Dialog Cards and Drag & Drop activities.
 
+Current release: **1.17.4**. This release keeps the H5P 1.17 library identity and requires H5P Core API 1.28.
+
+See [CHANGELOG.md](CHANGELOG.md) for release details.
+
 ## License
 
 (The MIT License)
