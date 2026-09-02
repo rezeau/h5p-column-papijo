@@ -608,6 +608,7 @@
   var isTasks = [
     'H5P.ImageHotspotQuestion',
     'H5P.Blanks',
+    'H5P.AdvancedBlanksPapiJo',
     'H5P.Essay',
     'H5P.SingleChoiceSet',
     'H5P.MultiChoice',
@@ -616,7 +617,7 @@
     'H5P.DragQuestionPapiJo',
     'H5P.Summary',
     'H5P.DragText',
-	'H5P.DragTextPapiJo',    
+    'H5P.DragTextPapiJo',
     'H5P.MarkTheWords',
     'H5P.MarkTheWordsPapiJo',
     'H5P.MemoryGame',
@@ -626,7 +627,8 @@
     'H5P.CoursePresentation',
     'H5P.DocumentationTool',
     'H5P.MultiMediaChoice',
-    'H5P.MultiMediaChoicePapiJo'    
+    'H5P.MultiMediaChoicePapiJo',
+    'H5P.DialogcardsPapiJo'
   ];
 
   /**
@@ -665,6 +667,7 @@
     'H5P.Table',
     'H5P.GuessTheAnswer',
     'H5P.Blanks',
+    'H5P.AdvancedBlanksPapiJo',
     'H5P.MultiChoice',
     'H5P.TrueFalse',
     'H5P.DragQuestion',
