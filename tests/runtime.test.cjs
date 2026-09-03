@@ -505,6 +505,24 @@ test('all four PapiJo fallback task names are recognized without instance.isTask
   }
 });
 
+test('AdvancedBlanksPapiJo is recognized by fallback without instance.isTask', () => {
+  const harness = createHarness({ childSpecs: [{}] });
+  const column = harness.instantiate({
+    content: [harness.makeColumnEntry('H5P.AdvancedBlanksPapiJo 1.4')]
+  });
+
+  assert.equal(column.getInstances()[0].listenerCount('xAPI'), 1);
+});
+
+test('DialogcardsPapiJo is recognized by fallback without instance.isTask', () => {
+  const harness = createHarness({ childSpecs: [{}] });
+  const column = harness.instantiate({
+    content: [harness.makeColumnEntry('H5P.DialogcardsPapiJo 1.17')]
+  });
+
+  assert.equal(column.getInstances()[0].listenerCount('xAPI'), 1);
+});
+
 test('QuestionSetPapiJo is recognized by fallback without instance.isTask', () => {
   const absentHarness = createHarness({ childSpecs: [{}] });
   const absent = absentHarness.instantiate({
