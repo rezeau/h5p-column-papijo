@@ -4,15 +4,15 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const baseline = 'dec7283167b48743eb8c7db23d7f0640004225dd';
+const baseline = '8ffef17';
 const root = path.resolve(__dirname, '..');
 const protectedFiles = [
   'scripts/h5p-column.js',
   'presave.js',
+  'semantics.json',
   'styles/h5p-column.css',
   'icon.svg',
 ];
-
 const languageFiles = execFileSync(
   'git',
   ['ls-tree', '-r', '--name-only', baseline, '--', 'language'],
