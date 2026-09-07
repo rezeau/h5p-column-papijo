@@ -1,8 +1,8 @@
 {
   "name": "h5p-column-papijo-characterization",
   "private": true,
-  "version": "1.17.4",
-  "description": "Characterization and release tooling for H5P.ColumnPapiJo 1.17.4.",
+  "version": "1.17.5",
+  "description": "Characterization and release tooling for H5P.ColumnPapiJo.",
   "scripts": {
     "test": "node --test",
     "build": "pwsh -NoProfile -File tools/build-release-package.ps1",

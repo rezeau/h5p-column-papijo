@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.17.5 - 2026-09-03
+
+### Compatibility
+
+- Add H5P.AdvancedBlanksPapiJo 1.4 as an allowed ColumnPapiJo child.
+- Recognize H5P.AdvancedBlanksPapiJo as a task.
+- Recognize H5P.DialogcardsPapiJo as a task.
+- Keep existing PapiJo child compatibility unchanged.nchanged.
+
 ## 1.17.4 - 2026-09-01
 
 ### Fixed
