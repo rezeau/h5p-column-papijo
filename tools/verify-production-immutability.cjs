@@ -9,7 +9,6 @@ const root = path.resolve(__dirname, '..');
 const protectedFiles = [
   'scripts/h5p-column.js',
   'presave.js',
-  'semantics.json',
   'styles/h5p-column.css',
   'icon.svg',
 ];

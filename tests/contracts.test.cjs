@@ -26,7 +26,7 @@ test('lookup by the ColumnPapiJo machine name resolves the presave hook', () => 
   assert.equal(typeof context.H5PPresave[machineName], 'function');
 });
 
-test('semantics retains exactly the nine agreed PapiJo child options', () => {
+test('semantics retains exactly the eleven agreed PapiJo child options', () => {
   const semantics = JSON.parse(fs.readFileSync(path.join(root, 'semantics.json'), 'utf8'));
   const options = semantics[0].field.fields[0].options;
   const papiJoOptions = options.filter((option) => option.includes('PapiJo'));
@@ -34,13 +34,15 @@ test('semantics retains exactly the nine agreed PapiJo child options', () => {
   assert.deepEqual(papiJoOptions, [
     'H5P.AccordionPapiJo 1.1',
     'H5P.AdvancedBlanksPapiJo 1.4',
+    'H5P.AdvancedTextPapiJo 1.2',
     'H5P.DialogcardsPapiJo 1.17',
     'H5P.DragQuestionPapiJo 1.14',
     'H5P.DragTextPapiJo 1.2',
-    'H5P.AdvancedTextPapiJo 1.1',
+    'H5P.ImageZoomPapiJo 1.0',
     'H5P.MarkTheWordsPapiJo 1.2',
+    'H5P.MultiMediaChoicePapiJo 0.4',
     'H5P.QuestionSetPapiJo 1.21',
-    'H5P.MultiMediaChoicePapiJo 0.4'
+    'H5P.TextareaPapiJo 1.0'
   ]);
 });
 
@@ -51,18 +53,24 @@ test('semantics permits AdvancedBlanksPapiJo 1.4', () => {
   assert.equal(options.includes('H5P.AdvancedBlanksPapiJo 1.4'), true);
 });
 
-test('semantics excludes ImageZoomPapiJo and TextareaPapiJo', () => {
+test('semantics permits ImageZoomPapiJo 1.0', () => {
   const semantics = JSON.parse(fs.readFileSync(path.join(root, 'semantics.json'), 'utf8'));
   const options = semantics[0].field.fields[0].options;
 
-  assert.equal(options.some((option) => option.startsWith('H5P.ImageZoomPapiJo ')), false);
-  assert.equal(options.some((option) => option.startsWith('H5P.TextareaPapiJo ')), false);
+  assert.equal(options.includes('H5P.ImageZoomPapiJo 1.0'), true);
 });
 
-test('semantics keeps the three intentionally removed official libraries excluded', () => {
+test('semantics temporarily permits TextareaPapiJo 1.0 for legacy content conversion', () => {
   const semantics = JSON.parse(fs.readFileSync(path.join(root, 'semantics.json'), 'utf8'));
   const options = semantics[0].field.fields[0].options;
-  const excluded = ['H5P.HighlightTheWords', 'H5P.ImageJuxtaposition', 'H5P.JigsawPuzzle'];
+
+  assert.equal(options.includes('H5P.TextareaPapiJo 1.0'), true);
+});
+
+test('semantics keeps unsupported libraries excluded', () => {
+  const semantics = JSON.parse(fs.readFileSync(path.join(root, 'semantics.json'), 'utf8'));
+  const options = semantics[0].field.fields[0].options;
+  const excluded = ['H5P.HighlightTheWords', 'H5P.JigsawPuzzle'];
 
   for (const machineName of excluded) {
     assert.equal(options.some((option) => option.startsWith(`${machineName} `)), false, machineName);
