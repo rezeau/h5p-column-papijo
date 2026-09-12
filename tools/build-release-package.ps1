@@ -88,11 +88,27 @@ try {
 
   foreach ($relativePath in $columnFiles) {
     if ($relativePath -ne 'library.json') {
-      $workingPath = Join-Path $root ($relativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-      $headHash = (& git -C $root rev-parse "HEAD:$relativePath").Trim()
-      $workingHash = (& git -C $root hash-object --no-filters $workingPath).Trim()
-      if ($LASTEXITCODE -ne 0 -or $workingHash -ne $headHash) {
-        throw "Production runtime file differs from HEAD: $relativePath"
+      if ($relativePath -eq 'semantics.json') {
+        $baselineText = (& git -C $root show "v1.17.6:$relativePath") -join "`n"
+        $expectedText = $baselineText.Replace(
+          'H5P.DragTextPapiJo 1.2',
+          'H5P.DragTextPapiJo 1.3'
+        )
+        $expectedJson = $expectedText | ConvertFrom-Json
+        $workingJson = Get-Content -Raw -LiteralPath (Join-Path $root $relativePath) | ConvertFrom-Json
+        $expectedCanonical = $expectedJson | ConvertTo-Json -Compress -Depth 100
+        $workingCanonical = $workingJson | ConvertTo-Json -Compress -Depth 100
+        if ($workingCanonical -cne $expectedCanonical) {
+          throw 'semantics.json differs from H5P.ColumnPapiJo 1.17.6 beyond the DragTextPapiJo 1.3 update.'
+        }
+      }
+      else {
+        $workingPath = Join-Path $root ($relativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        $headHash = (& git -C $root rev-parse "HEAD:$relativePath").Trim()
+        $workingHash = (& git -C $root hash-object --no-filters $workingPath).Trim()
+        if ($LASTEXITCODE -ne 0 -or $workingHash -ne $headHash) {
+          throw "Production runtime file differs from HEAD: $relativePath"
+        }
       }
     }
     Copy-AllowlistedFile -SourceRoot $root -RelativePath $relativePath -DestinationRoot $columnDestination

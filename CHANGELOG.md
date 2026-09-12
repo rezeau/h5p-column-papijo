@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.18.0 - 2026-09-12
+
+### Compatibility
+
+- Update the allowed H5P.DragTextPapiJo child from 1.2 to 1.3.
+- Keep all other child-library compatibility unchanged.
+- Retain the H5P Core API 1.28 requirement.
+
 ## 1.17.5 - 2026-09-03
 
 ### Compatibility

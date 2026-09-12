@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const baseline = '8ffef17';
+const baseline = 'v1.17.6';
 const root = path.resolve(__dirname, '..');
 const protectedFiles = [
   'scripts/h5p-column.js',
@@ -22,11 +22,19 @@ protectedFiles.push(...languageFiles);
 
 const changed = [];
 for (const file of protectedFiles) {
-  const baselineBytes = execFileSync(
+  let baselineBytes = execFileSync(
     'git',
     ['show', `${baseline}:${file}`],
     { cwd: root, encoding: 'buffer' }
   );
+  if (file === 'semantics.json') {
+    baselineBytes = Buffer.from(
+      baselineBytes.toString('utf8').replace(
+        'H5P.DragTextPapiJo 1.2',
+        'H5P.DragTextPapiJo 1.3'
+      )
+    );
+  }
   const workingBytes = fs.readFileSync(path.join(root, file));
   if (!baselineBytes.equals(workingBytes)) {
     changed.push(file);

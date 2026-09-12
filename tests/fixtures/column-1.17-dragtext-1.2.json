@@ -1,0 +1,35 @@
+{
+  "library": "H5P.ColumnPapiJo 1.17",
+  "params": {
+    "content": [
+      {
+        "content": {
+          "library": "H5P.DragTextPapiJo 1.2",
+          "params": {
+            "taskDescription": "Distinctive C2 nested-upgrade fixture",
+            "textField": "The *preserved::Text tooltip* value stays intact.",
+            "tooltipImages": [
+              {
+                "id": "8fbe0287-aea8-481b-8958-e698a34f5685",
+                "image": {
+                  "path": "images/distinctive-tooltip.png",
+                  "mime": "image/png",
+                  "copyright": {
+                    "license": "U"
+                  }
+                },
+                "alt": "Distinctive managed tooltip image"
+              }
+            ],
+            "behaviour": {
+              "instantFeedback": false,
+              "enableRetry": true
+            }
+          },
+          "subContentId": "64c42f03-5e5a-47d5-a082-b59a60dbe511"
+        },
+        "useSeparator": "auto"
+      }
+    ]
+  }
+}
