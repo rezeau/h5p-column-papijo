@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const baseline = '292cefa0c14b24562d01da3cccd0a3553fc542d9';
+const baseline = 'v1.18.0';
 const root = path.resolve(__dirname, '..');
 const library = JSON.parse(fs.readFileSync(path.join(root, 'library.json'), 'utf8'));
 const packageMetadata = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));

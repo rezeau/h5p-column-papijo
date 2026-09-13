@@ -1,0 +1,47 @@
+{
+  "library": "H5P.ColumnPapiJo 1.18",
+  "params": {
+    "content": [
+      {
+        "content": {
+          "library": "H5P.QuestionSetPapiJo 1.21",
+          "params": {
+            "info": true,
+            "introPage": {
+              "showIntroPage": true,
+              "title": "Distinctive nested QuestionSet upgrade fixture",
+              "introduction": "<p>This content must remain unchanged.</p>",
+              "startButtonText": "Begin preserved quiz"
+            },
+            "progressType": "textual",
+            "passPercentage": 73,
+            "questions": [
+              {
+                "library": "H5P.TrueFalse 1.8",
+                "params": {
+                  "question": "This nested question is preserved.",
+                  "correct": "true"
+                },
+                "subContentId": "f21a82a9-5d87-48d2-a51c-a499675bf8f7"
+              }
+            ],
+            "texts": {
+              "prevButton": "Preserved previous",
+              "nextButton": "Preserved next",
+              "finishButton": "Preserved finish"
+            },
+            "randomQuestions": false,
+            "endGame": {
+              "showResultPage": true,
+              "showSolutionButton": false,
+              "showRetryButton": true,
+              "message": "Distinctive preserved result"
+            }
+          },
+          "subContentId": "945a92da-c603-45a9-a70a-45632d9679df"
+        },
+        "useSeparator": "auto"
+      }
+    ]
+  }
+}

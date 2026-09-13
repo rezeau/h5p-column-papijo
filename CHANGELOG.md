@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.19.0 - 2026-09-13
+
+### Compatibility
+
+- Update the allowed H5P.QuestionSetPapiJo child from 1.21 to 1.22.
+- Support recursive upgrading of nested QuestionSetPapiJo 1.21 content to 1.22.
+- Keep all other child-library compatibility unchanged.
+- Retain the H5P Core API 1.28 requirement.
+
 ## 1.18.0 - 2026-09-12
 
 ### Compatibility

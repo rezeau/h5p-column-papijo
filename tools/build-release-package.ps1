@@ -89,17 +89,17 @@ try {
   foreach ($relativePath in $columnFiles) {
     if ($relativePath -ne 'library.json') {
       if ($relativePath -eq 'semantics.json') {
-        $baselineText = (& git -C $root show "v1.17.6:$relativePath") -join "`n"
+        $baselineText = (& git -C $root show "v1.18.0:$relativePath") -join "`n"
         $expectedText = $baselineText.Replace(
-          'H5P.DragTextPapiJo 1.2',
-          'H5P.DragTextPapiJo 1.3'
+          'H5P.QuestionSetPapiJo 1.21',
+          'H5P.QuestionSetPapiJo 1.22'
         )
         $expectedJson = $expectedText | ConvertFrom-Json
         $workingJson = Get-Content -Raw -LiteralPath (Join-Path $root $relativePath) | ConvertFrom-Json
         $expectedCanonical = $expectedJson | ConvertTo-Json -Compress -Depth 100
         $workingCanonical = $workingJson | ConvertTo-Json -Compress -Depth 100
         if ($workingCanonical -cne $expectedCanonical) {
-          throw 'semantics.json differs from H5P.ColumnPapiJo 1.17.6 beyond the DragTextPapiJo 1.3 update.'
+          throw 'semantics.json differs from H5P.ColumnPapiJo 1.18.0 beyond the QuestionSetPapiJo 1.22 update.'
         }
       }
       else {
