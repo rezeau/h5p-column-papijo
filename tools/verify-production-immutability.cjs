@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const baseline = 'v1.18.0';
+const baseline = 'v1.19.0';
 const root = path.resolve(__dirname, '..');
 const protectedFiles = [
   'scripts/h5p-column.js',
@@ -30,9 +30,23 @@ for (const file of protectedFiles) {
   if (file === 'semantics.json') {
     baselineBytes = Buffer.from(
       baselineBytes.toString('utf8').replace(
-        'H5P.QuestionSetPapiJo 1.21',
-        'H5P.QuestionSetPapiJo 1.22'
+        '            "H5P.SingleChoiceSet 1.11",',
+        '            "H5P.ScaleQuestion 0.1",\n            "H5P.SingleChoiceSet 1.11",'
       )
+    );
+  }
+  else if (file === 'scripts/h5p-column.js') {
+    const baselineText = baselineBytes.toString('utf8');
+    const hasMarginsStart = baselineText.indexOf('  var hasMargins = [');
+    const anchor = "    'H5P.TrueFalse',";
+    const insertionPoint = baselineText.indexOf(anchor, hasMarginsStart);
+    if (hasMarginsStart === -1 || insertionPoint === -1) {
+      throw new Error(`Unable to locate the hasMargins insertion point in ${baseline}:${file}.`);
+    }
+    baselineBytes = Buffer.from(
+      baselineText.slice(0, insertionPoint + anchor.length) +
+      "\n    'H5P.ScaleQuestion'," +
+      baselineText.slice(insertionPoint + anchor.length)
     );
   }
   const workingBytes = fs.readFileSync(path.join(root, file));

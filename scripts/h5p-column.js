@@ -670,6 +670,7 @@
     'H5P.AdvancedBlanksPapiJo',
     'H5P.MultiChoice',
     'H5P.TrueFalse',
+    'H5P.ScaleQuestion',
     'H5P.DragQuestion',
     'H5P.DragQuestionPapiJo',
     'H5P.Summary',

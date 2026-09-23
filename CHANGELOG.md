@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.19.1 - 2026-09-22
+
+### Compatibility
+
+- Add H5P.ScaleQuestion 0.1 as an allowed ColumnPapiJo child.
+- Retain H5P.QuestionSetPapiJo 1.22 compatibility, including nested ScaleQuestion content.
+- Keep all other child-library compatibility unchanged.
+- Retain the H5P Core API 1.28 requirement.
+
 ## 1.19.0 - 2026-09-13
 
 ### Compatibility

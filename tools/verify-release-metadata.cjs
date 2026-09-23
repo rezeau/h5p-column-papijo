@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const baseline = 'v1.18.0';
+const baseline = 'v1.19.0';
 const root = path.resolve(__dirname, '..');
 const library = JSON.parse(fs.readFileSync(path.join(root, 'library.json'), 'utf8'));
 const packageMetadata = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
@@ -15,10 +15,10 @@ const baselineLibrary = JSON.parse(execFileSync(
 ));
 
 const version = `${library.majorVersion}.${library.minorVersion}.${library.patchVersion}`;
-const expectedVersion = `${baselineLibrary.majorVersion}.${baselineLibrary.minorVersion + 1}.0`;
+const expectedVersion = `${baselineLibrary.majorVersion}.${baselineLibrary.minorVersion}.${baselineLibrary.patchVersion + 1}`;
 
 if (version !== expectedVersion) {
-  throw new Error(`Expected next minor version ${expectedVersion}, found ${version}.`);
+  throw new Error(`Expected next patch version ${expectedVersion}, found ${version}.`);
 }
 if (packageMetadata.version !== version) {
   throw new Error(`package.json version ${packageMetadata.version} does not match library version ${version}.`);
@@ -29,7 +29,6 @@ if (packageMetadata.private !== true) {
 
 const comparableLibrary = {
   ...library,
-  minorVersion: baselineLibrary.minorVersion,
   patchVersion: baselineLibrary.patchVersion
 };
 if (JSON.stringify(comparableLibrary) !== JSON.stringify(baselineLibrary)) {
