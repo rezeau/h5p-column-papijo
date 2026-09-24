@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.20.0 - 2026-09-24
+
+### Compatibility
+
+- Update the allowed H5P.ScaleQuestion child from 0.1 to 0.2.
+- Update the allowed H5P.QuestionSetPapiJo child from 1.22 to 1.23.
+- Cover recursive upgrades of existing direct ScaleQuestion and QuestionSetPapiJo content, including ScaleQuestion nested inside QuestionSetPapiJo.
+- Keep all other child-library compatibility and H5P Core API 1.28 unchanged.
+
+### Runtime and deployment
+
+- Make no changes to ColumnPapiJo runtime behavior.
+- Require compatible H5P.ScaleQuestion and H5P.QuestionSetPapiJo libraries to be installed separately where those child types are used; they are not bundled in the ColumnPapiJo release package.
+
 ## 1.19.1 - 2026-09-22
 
 ### Compatibility

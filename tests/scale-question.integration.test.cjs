@@ -74,7 +74,7 @@ test('ScaleQuestion explicit task identity waits for terminal completion and con
     }
   });
   const column = harness.instantiate({
-    content: [harness.makeColumnEntry('H5P.ScaleQuestion 0.1')]
+    content: [harness.makeColumnEntry('H5P.ScaleQuestion 0.2')]
   });
 
   assert.equal(scale.listenerCount('xAPI'), 1);
@@ -111,8 +111,8 @@ test('duplicate ScaleQuestion terminal results do not complete an additional Col
   });
   const column = harness.instantiate({
     content: [
-      harness.makeColumnEntry('H5P.ScaleQuestion 0.1'),
-      harness.makeColumnEntry('H5P.ScaleQuestion 0.1')
+      harness.makeColumnEntry('H5P.ScaleQuestion 0.2'),
+      harness.makeColumnEntry('H5P.ScaleQuestion 0.2')
     ]
   });
 
@@ -151,7 +151,7 @@ test('ScaleQuestion state restores and saves in its original Column content slot
   const column = harness.instantiate({
     content: [
       harness.makeColumnEntry('H5P.AdvancedText 1.1'),
-      harness.makeColumnEntry('H5P.ScaleQuestion 0.1')
+      harness.makeColumnEntry('H5P.ScaleQuestion 0.2')
     ]
   }, 17, { previousState });
 
@@ -171,7 +171,7 @@ test('Column delegates Show Solution and Reset to ScaleQuestion', () => {
     }
   });
   const column = harness.instantiate({
-    content: [harness.makeColumnEntry('H5P.ScaleQuestion 0.1')]
+    content: [harness.makeColumnEntry('H5P.ScaleQuestion 0.2')]
   });
 
   column.showSolutions();
@@ -193,7 +193,7 @@ test('Column reporting includes ScaleQuestion child xAPI data', () => {
     }
   });
   const column = harness.instantiate({
-    content: [harness.makeColumnEntry('H5P.ScaleQuestion 0.1')]
+    content: [harness.makeColumnEntry('H5P.ScaleQuestion 0.2')]
   });
   const report = column.getXAPIData();
 
@@ -211,7 +211,7 @@ test('ScaleQuestion resize events bubble through Column and Column resize reache
     }
   });
   const column = harness.instantiate({
-    content: [harness.makeColumnEntry('H5P.ScaleQuestion 0.1')]
+    content: [harness.makeColumnEntry('H5P.ScaleQuestion 0.2')]
   });
   let columnResizeCount = 0;
   let scaleResizeCount = 0;
@@ -259,7 +259,7 @@ test('QuestionSetPapiJo containing ScaleQuestions remains one Column task until 
     }
   });
   const column = harness.instantiate({
-    content: [harness.makeColumnEntry('H5P.QuestionSetPapiJo 1.22')]
+    content: [harness.makeColumnEntry('H5P.QuestionSetPapiJo 1.23')]
   });
 
   assert.equal(questionSet.listenerCount('xAPI'), 1);
@@ -344,5 +344,5 @@ test('automatic separators give ScaleQuestion the same container boundaries as T
   }
 
   assert.deepEqual(automaticBoxSizes('H5P.TrueFalse 1.8'), [1, 1, 1]);
-  assert.deepEqual(automaticBoxSizes('H5P.ScaleQuestion 0.1'), [1, 1, 1]);
+  assert.deepEqual(automaticBoxSizes('H5P.ScaleQuestion 0.2'), [1, 1, 1]);
 });

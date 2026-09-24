@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const baseline = 'v1.19.0';
+const baseline = 'v1.19.1';
 const root = path.resolve(__dirname, '..');
 const protectedFiles = [
   'scripts/h5p-column.js',
@@ -21,6 +21,14 @@ const languageFiles = execFileSync(
 protectedFiles.push(...languageFiles);
 
 const changed = [];
+const currentLanguageFiles = fs.readdirSync(path.join(root, 'language'), { withFileTypes: true })
+  .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
+  .map((entry) => `language/${entry.name}`)
+  .sort();
+if (JSON.stringify(currentLanguageFiles) !== JSON.stringify([...languageFiles].sort())) {
+  changed.push('language file set');
+}
+
 for (const file of protectedFiles) {
   let baselineBytes = execFileSync(
     'git',
@@ -28,26 +36,18 @@ for (const file of protectedFiles) {
     { cwd: root, encoding: 'buffer' }
   );
   if (file === 'semantics.json') {
-    baselineBytes = Buffer.from(
-      baselineBytes.toString('utf8').replace(
-        '            "H5P.SingleChoiceSet 1.11",',
-        '            "H5P.ScaleQuestion 0.1",\n            "H5P.SingleChoiceSet 1.11",'
-      )
-    );
-  }
-  else if (file === 'scripts/h5p-column.js') {
-    const baselineText = baselineBytes.toString('utf8');
-    const hasMarginsStart = baselineText.indexOf('  var hasMargins = [');
-    const anchor = "    'H5P.TrueFalse',";
-    const insertionPoint = baselineText.indexOf(anchor, hasMarginsStart);
-    if (hasMarginsStart === -1 || insertionPoint === -1) {
-      throw new Error(`Unable to locate the hasMargins insertion point in ${baseline}:${file}.`);
+    let baselineText = baselineBytes.toString('utf8');
+    const replacements = [
+      ['H5P.QuestionSetPapiJo 1.22', 'H5P.QuestionSetPapiJo 1.23'],
+      ['H5P.ScaleQuestion 0.1', 'H5P.ScaleQuestion 0.2']
+    ];
+    for (const [from, to] of replacements) {
+      if (baselineText.split(from).length !== 2) {
+        throw new Error(`Expected exactly one ${from} declaration in ${baseline}:${file}.`);
+      }
+      baselineText = baselineText.replace(from, to);
     }
-    baselineBytes = Buffer.from(
-      baselineText.slice(0, insertionPoint + anchor.length) +
-      "\n    'H5P.ScaleQuestion'," +
-      baselineText.slice(insertionPoint + anchor.length)
-    );
+    baselineBytes = Buffer.from(baselineText);
   }
   const workingBytes = fs.readFileSync(path.join(root, file));
   if (!baselineBytes.equals(workingBytes)) {

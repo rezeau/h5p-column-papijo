@@ -89,42 +89,34 @@ try {
   foreach ($relativePath in $columnFiles) {
     if ($relativePath -ne 'library.json') {
       if ($relativePath -eq 'semantics.json') {
-        $baselineText = (& git -C $root show "v1.19.0:$relativePath") -join "`n"
-        $expectedText = $baselineText.Replace(
-          '            "H5P.SingleChoiceSet 1.11",',
-          "            `"H5P.ScaleQuestion 0.1`",`n            `"H5P.SingleChoiceSet 1.11`","
+        $baseline = 'v1.19.1'
+        $expectedText = (& git -C $root show "${baseline}:$relativePath") -join "`n"
+        $replacements = @(
+          @('H5P.QuestionSetPapiJo 1.22', 'H5P.QuestionSetPapiJo 1.23'),
+          @('H5P.ScaleQuestion 0.1', 'H5P.ScaleQuestion 0.2')
         )
+        foreach ($replacement in $replacements) {
+          $from = $replacement[0]
+          $to = $replacement[1]
+          if ([regex]::Matches($expectedText, [regex]::Escape($from)).Count -ne 1) {
+            throw "Expected exactly one $from declaration in ${baseline}:$relativePath."
+          }
+          $expectedText = $expectedText.Replace($from, $to)
+        }
         $expectedJson = $expectedText | ConvertFrom-Json
         $workingJson = Get-Content -Raw -LiteralPath (Join-Path $root $relativePath) | ConvertFrom-Json
         $expectedCanonical = $expectedJson | ConvertTo-Json -Compress -Depth 100
         $workingCanonical = $workingJson | ConvertTo-Json -Compress -Depth 100
         if ($workingCanonical -cne $expectedCanonical) {
-          throw 'semantics.json differs from H5P.ColumnPapiJo 1.19.0 beyond the ScaleQuestion 0.1 addition.'
-        }
-      }
-      elseif ($relativePath -eq 'scripts/h5p-column.js') {
-        $baselineText = (& git -C $root show "v1.19.0:$relativePath") -join "`n"
-        $hasMarginsStart = $baselineText.IndexOf('  var hasMargins = [')
-        $anchor = "    'H5P.TrueFalse',"
-        $insertionPoint = $baselineText.IndexOf($anchor, $hasMarginsStart)
-        if ($hasMarginsStart -lt 0 -or $insertionPoint -lt 0) {
-          throw "Unable to locate the hasMargins insertion point in v1.19.0:$relativePath."
-        }
-        $expectedText = $baselineText.Insert(
-          $insertionPoint + $anchor.Length,
-          "`n    'H5P.ScaleQuestion',"
-        )
-        $workingText = (Get-Content -Raw -LiteralPath (Join-Path $root $relativePath)).Replace("`r`n", "`n").TrimEnd("`r", "`n")
-        if ($workingText -cne $expectedText) {
-          throw 'scripts/h5p-column.js differs from H5P.ColumnPapiJo 1.19.0 beyond the ScaleQuestion hasMargins addition.'
+          throw 'semantics.json differs from H5P.ColumnPapiJo 1.19.1 beyond the approved QuestionSetPapiJo 1.23 and ScaleQuestion 0.2 substitutions.'
         }
       }
       else {
         $workingPath = Join-Path $root ($relativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        $headHash = (& git -C $root rev-parse "HEAD:$relativePath").Trim()
+        $baselineHash = (& git -C $root rev-parse "v1.19.1:$relativePath").Trim()
         $workingHash = (& git -C $root hash-object --no-filters $workingPath).Trim()
-        if ($LASTEXITCODE -ne 0 -or $workingHash -ne $headHash) {
-          throw "Production runtime file differs from HEAD: $relativePath"
+        if ($LASTEXITCODE -ne 0 -or $workingHash -ne $baselineHash) {
+          throw "Production runtime file differs from v1.19.1: $relativePath"
         }
       }
     }

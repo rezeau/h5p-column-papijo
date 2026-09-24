@@ -9,13 +9,13 @@ const vm = require('node:vm');
 
 const root = path.resolve(__dirname, '..');
 
-test('library version is exactly ColumnPapiJo 1.19.1', () => {
+test('library version is exactly ColumnPapiJo 1.20.0', () => {
   const library = JSON.parse(fs.readFileSync(path.join(root, 'library.json'), 'utf8'));
 
   assert.equal(library.machineName, 'H5P.ColumnPapiJo');
   assert.deepEqual(
     [library.majorVersion, library.minorVersion, library.patchVersion],
-    [1, 19, 1]
+    [1, 20, 0]
   );
 });
 
@@ -52,45 +52,34 @@ test('semantics retains exactly the eleven agreed PapiJo child options', () => {
     'H5P.ImageZoomPapiJo 1.0',
     'H5P.MarkTheWordsPapiJo 1.2',
     'H5P.MultiMediaChoicePapiJo 0.4',
-    'H5P.QuestionSetPapiJo 1.22',
+    'H5P.QuestionSetPapiJo 1.23',
     'H5P.TextareaPapiJo 1.0'
   ]);
 });
 
-test('semantics preserves the 1.18 allowlist while updating QuestionSetPapiJo and adding ScaleQuestion', () => {
+test('semantics preserves the 1.19.1 allowlist while updating only planned child versions', () => {
   const semantics = JSON.parse(fs.readFileSync(path.join(root, 'semantics.json'), 'utf8'));
   const options = semantics[0].field.fields[0].options;
   const baseline = JSON.parse(execFileSync(
     'git',
-    ['show', 'v1.18.0:semantics.json'],
+    ['show', 'v1.19.1:semantics.json'],
     { cwd: root, encoding: 'utf8' }
   ));
-  const expected = baseline[0].field.fields[0].options.map((option) =>
-    option === 'H5P.QuestionSetPapiJo 1.21' ? 'H5P.QuestionSetPapiJo 1.22' : option
-  );
-  expected.splice(expected.indexOf('H5P.SingleChoiceSet 1.11'), 0, 'H5P.ScaleQuestion 0.1');
+  const expected = baseline[0].field.fields[0].options.map((option) => {
+    if (option === 'H5P.QuestionSetPapiJo 1.22') {
+      return 'H5P.QuestionSetPapiJo 1.23';
+    }
+    if (option === 'H5P.ScaleQuestion 0.1') {
+      return 'H5P.ScaleQuestion 0.2';
+    }
+    return option;
+  });
 
   assert.deepEqual(options, expected);
-  assert.equal(options.includes('H5P.ScaleQuestion 0.1'), true);
-  assert.equal(options.includes('H5P.QuestionSetPapiJo 1.22'), true);
-  assert.equal(options.includes('H5P.QuestionSetPapiJo 1.21'), false);
-});
-
-test('semantics adds only ScaleQuestion 0.1 to the ColumnPapiJo 1.19.0 allowlist', () => {
-  const semantics = JSON.parse(fs.readFileSync(path.join(root, 'semantics.json'), 'utf8'));
-  const options = semantics[0].field.fields[0].options;
-  const baseline = JSON.parse(execFileSync(
-    'git',
-    ['show', 'v1.19.0:semantics.json'],
-    { cwd: root, encoding: 'utf8' }
-  ));
-  const expected = baseline[0].field.fields[0].options;
-  const insertionIndex = expected.indexOf('H5P.SingleChoiceSet 1.11');
-
-  expected.splice(insertionIndex, 0, 'H5P.ScaleQuestion 0.1');
-
-  assert.notEqual(insertionIndex, -1);
-  assert.deepEqual(options, expected);
+  assert.equal(options.includes('H5P.ScaleQuestion 0.2'), true);
+  assert.equal(options.includes('H5P.QuestionSetPapiJo 1.23'), true);
+  assert.equal(options.includes('H5P.ScaleQuestion 0.1'), false);
+  assert.equal(options.includes('H5P.QuestionSetPapiJo 1.22'), false);
 });
 
 test('semantics permits AdvancedBlanksPapiJo 1.4', () => {
