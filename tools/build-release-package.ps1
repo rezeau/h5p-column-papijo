@@ -92,7 +92,8 @@ try {
         $baseline = 'v1.20.0'
         $expectedText = (& git -C $root show "${baseline}:$relativePath") -join "`n"
         $replacements = @(
-          ,@('H5P.AdvancedTextPapiJo 1.2', 'H5P.AdvancedTextPapiJo 1.3')
+          @('H5P.AdvancedTextPapiJo 1.2', 'H5P.AdvancedTextPapiJo 1.3'),
+          @('H5P.AccordionPapiJo 1.1', 'H5P.AccordionPapiJo 1.2')
         )
         foreach ($replacement in $replacements) {
           $from = $replacement[0]
@@ -107,7 +108,7 @@ try {
         $expectedCanonical = $expectedJson | ConvertTo-Json -Compress -Depth 100
         $workingCanonical = $workingJson | ConvertTo-Json -Compress -Depth 100
         if ($workingCanonical -cne $expectedCanonical) {
-          throw 'semantics.json differs from H5P.ColumnPapiJo 1.20.0 beyond the approved AdvancedTextPapiJo 1.3 substitution.'
+          throw 'semantics.json differs from H5P.ColumnPapiJo 1.20.0 beyond the approved AdvancedTextPapiJo 1.3 and AccordionPapiJo 1.2 substitutions.'
         }
       }
       else {

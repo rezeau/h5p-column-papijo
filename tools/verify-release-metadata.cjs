@@ -49,4 +49,28 @@ if (!changelog.includes(`## ${version} - `)) {
   throw new Error(`CHANGELOG.md has no ${version} release section.`);
 }
 
+const substitutions = [
+  ['H5P.AdvancedTextPapiJo 1.2', 'H5P.AdvancedTextPapiJo 1.3'],
+  ['H5P.AccordionPapiJo 1.1', 'H5P.AccordionPapiJo 1.2']
+];
+let expectedSemantics = execFileSync('git', ['show', `${baseline}:semantics.json`], {
+  cwd: root, encoding: 'utf8'
+});
+for (const [from, to] of substitutions) {
+  if (expectedSemantics.split(from).length !== 2) {
+    throw new Error(`Expected exactly one ${from} in ${baseline} semantics.`);
+  }
+  expectedSemantics = expectedSemantics.replace(from, to);
+  for (const [file, text] of [['README.md', readme], ['CHANGELOG.md', changelog.split('## 1.20.0')[0]]]) {
+    if (!text.includes(to)) throw new Error(`${file} must document ${to} for ${version}.`);
+  }
+}
+if (JSON.stringify(JSON.parse(expectedSemantics)) !==
+    JSON.stringify(JSON.parse(fs.readFileSync(path.join(root, 'semantics.json'), 'utf8')))) {
+  throw new Error('Release semantics must contain exactly the two approved child-version substitutions.');
+}
+if (fs.existsSync(path.join(root, 'upgrades.js'))) {
+  throw new Error('Column 1.21 uses H5P recursive upgrades without a custom upgrades.js.');
+}
+
 console.log(`Release metadata validation passed for H5P.ColumnPapiJo ${version}.`);

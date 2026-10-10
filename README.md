@@ -5,7 +5,9 @@ Display a list of content in a column format, each one below the next one.
 
 Column "Papi Jo" (the H5P.ColumnPapiJo library) is a modified version which accepts the "papi Jo" versions of Dialog Cards and Drag & Drop activities.
 
-Current release: **1.21.0**. This compatibility release updates the allowed H5P.AdvancedTextPapiJo child from 1.2 to 1.3. It retains support for H5P.ScaleQuestion 0.2 and H5P.QuestionSetPapiJo 1.23 as direct children, including recursive upgrades of existing direct and nested content, and requires H5P Core API 1.28. Install the compatible child libraries separately where they are used.
+Current release: **1.21.0** (unreleased candidate). This compatibility update allows H5P.AdvancedTextPapiJo 1.3 and H5P.AccordionPapiJo 1.2. The intentional Column 1.20 -> 1.21 minor version boundary lets H5P select a main-library content upgrade and recursively upgrade direct AdvancedTextPapiJo 1.2 children to 1.3, and nested AccordionPapiJo 1.1 children to 1.2 with their AdvancedTextPapiJo children upgraded to 1.3. All other child options and their order, runtime behavior, and H5P Core API 1.28 remain unchanged. Install compatible child libraries separately where used; AdvancedTextPapiJo 1.3 requires H5PEditor.AdvancedTextPapiJoTooltip 1.2. The private Accordion 1.1.8 recovery bridge is outside the public release chain.
+
+Verification consumes the actual local AdvancedTextPapiJo 1.3.0, tooltip editor 1.2.0, and AccordionPapiJo 1.2.0 working-tree candidates read-only and fails if they are missing or have different versions. Installed WordPress H5P eligibility, upgrade UI, recursive engine, validator, and dependency traversal code run against in-memory fixtures, without loading WordPress or writing content/database/installed libraries. InteractiveBookPapiJo 1.17.0 adopts ColumnPapiJo 1.21 separately.
 
 See [CHANGELOG.md](CHANGELOG.md) for release details.
 

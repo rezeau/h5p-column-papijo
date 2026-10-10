@@ -38,7 +38,8 @@ for (const file of protectedFiles) {
   if (file === 'semantics.json') {
     let baselineText = baselineBytes.toString('utf8');
     const replacements = [
-      ['H5P.AdvancedTextPapiJo 1.2', 'H5P.AdvancedTextPapiJo 1.3']
+      ['H5P.AdvancedTextPapiJo 1.2', 'H5P.AdvancedTextPapiJo 1.3'],
+      ['H5P.AccordionPapiJo 1.1', 'H5P.AccordionPapiJo 1.2']
     ];
     for (const [from, to] of replacements) {
       if (baselineText.split(from).length !== 2) {

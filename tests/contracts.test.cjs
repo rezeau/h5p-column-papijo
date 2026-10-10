@@ -43,7 +43,7 @@ test('semantics retains exactly the eleven agreed PapiJo child options', () => {
   const papiJoOptions = options.filter((option) => option.includes('PapiJo'));
 
   assert.deepEqual(papiJoOptions, [
-    'H5P.AccordionPapiJo 1.1',
+    'H5P.AccordionPapiJo 1.2',
     'H5P.AdvancedBlanksPapiJo 1.4',
     'H5P.AdvancedTextPapiJo 1.3',
     'H5P.DialogcardsPapiJo 1.17',
@@ -57,7 +57,7 @@ test('semantics retains exactly the eleven agreed PapiJo child options', () => {
   ]);
 });
 
-test('semantics preserves the 1.20.0 allowlist and order while updating only AdvancedTextPapiJo', () => {
+test('semantics preserves the 1.20.0 allowlist and order with exactly the two approved child transitions', () => {
   const semantics = JSON.parse(fs.readFileSync(path.join(root, 'semantics.json'), 'utf8'));
   const options = semantics[0].field.fields[0].options;
   const baseline = JSON.parse(execFileSync(
@@ -65,13 +65,17 @@ test('semantics preserves the 1.20.0 allowlist and order while updating only Adv
     ['show', 'v1.20.0:semantics.json'],
     { cwd: root, encoding: 'utf8' }
   ));
-  const expected = baseline[0].field.fields[0].options.map((option) =>
-    option === 'H5P.AdvancedTextPapiJo 1.2' ? 'H5P.AdvancedTextPapiJo 1.3' : option
-  );
+  const replacements = {
+    'H5P.AdvancedTextPapiJo 1.2': 'H5P.AdvancedTextPapiJo 1.3',
+    'H5P.AccordionPapiJo 1.1': 'H5P.AccordionPapiJo 1.2'
+  };
+  const expected = baseline[0].field.fields[0].options.map((option) => replacements[option] || option);
 
   assert.deepEqual(options, expected);
   assert.equal(options.includes('H5P.AdvancedTextPapiJo 1.3'), true);
   assert.equal(options.includes('H5P.AdvancedTextPapiJo 1.2'), false);
+  assert.equal(options.includes('H5P.AccordionPapiJo 1.2'), true);
+  assert.equal(options.includes('H5P.AccordionPapiJo 1.1'), false);
   assert.equal(options.includes('H5P.ScaleQuestion 0.2'), true);
   assert.equal(options.includes('H5P.QuestionSetPapiJo 1.23'), true);
   assert.equal(options.includes('H5P.ScaleQuestion 0.1'), false);

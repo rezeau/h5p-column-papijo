@@ -105,6 +105,10 @@ function readColumn121Semantics() {
   assert.equal(options.includes('H5P.ScaleQuestion 0.2'), true);
   assert.equal(options.includes('H5P.QuestionSetPapiJo 1.22'), false);
   assert.equal(options.includes('H5P.ScaleQuestion 0.1'), false);
+  assert.equal(options.includes('H5P.AdvancedTextPapiJo 1.3'), true);
+  assert.equal(options.includes('H5P.AccordionPapiJo 1.2'), true);
+  assert.equal(options.includes('H5P.AdvancedTextPapiJo 1.2'), false);
+  assert.equal(options.includes('H5P.AccordionPapiJo 1.1'), false);
   return semantics;
 }
 
@@ -733,3 +737,71 @@ test(
     assert.equal(fs.existsSync(path.join(root, 'upgrades.js')), false);
   }
 );
+
+const candidate = require('./helpers/column-candidate.cjs');
+
+test('actual AdvancedText 1.3.0, editor 1.2.0 and public Accordion 1.2.0 candidates are required', () => {
+  const actual = candidate.candidates();
+  for (const { directory, manifest } of Object.values(actual)) {
+    console.log(`Actual candidate: ${directory} (${manifest.machineName} ${manifest.majorVersion}.${manifest.minorVersion}.${manifest.patchVersion})`);
+  }
+  assert.equal(fs.existsSync(path.join(root, 'upgrades.js')), false);
+});
+
+test('installed WordPress main-library selection offers Column 1.20 -> 1.21 and excludes patches', () => {
+  const admin = fs.readFileSync(path.join(candidate.pluginRoot, 'admin/class-h5p-library-admin.php'), 'utf8');
+  assert.match(admin, /ON hl2\.name = hl1\.name/);
+  assert.match(admin, /\$upgrades = \$core->getUpgrades\(\$version, \$versions\)/);
+  assert.match(admin, /'versions' => \$upgrades/);
+  assert.match(admin, /'name' => \$library->name/);
+  assert.deepEqual(candidate.eligibility(), { 121: '1.21.0' });
+  assert.deepEqual(candidate.eligibility({ ...candidate.baselineJson('library.json'), patchVersion: 99 }), {});
+});
+
+for (const managed of [false, true]) {
+  for (const nested of [false, true]) {
+    test(`installed UI selects Column 1.21 and recursively upgrades ${nested ? 'nested Accordion ->' : 'direct'} AdvancedText (inlineImages ${managed ? 'present' : 'absent'})`, async () => {
+      const text = candidate.textChild(2, managed);
+      const before = candidate.column([nested ? candidate.accordion([text]) : text]);
+      const snapshot = structuredClone(before);
+      const upgraded = await candidate.offeredUpgrade(before);
+      assert.deepEqual(upgraded.loads, nested ? [
+        'H5P.ColumnPapiJo 1.21', 'H5P.AccordionPapiJo 1.2', 'H5P.AdvancedTextPapiJo 1.3'
+      ] : ['H5P.ColumnPapiJo 1.21', 'H5P.AdvancedTextPapiJo 1.3']);
+      // Whole-content equality checks all params, HTML/data attributes, file stores,
+      // metadata, UUIDs, parent settings, ordering, and optional-field absence.
+      assert.deepEqual(upgraded.content, candidate.expectedUpgrade(before));
+      const child = upgraded.content.params.content[0].content;
+      assert.equal(Object.hasOwn((nested ? child.params.panels[0].content : child).params, 'inlineImages'), managed);
+      assert.deepEqual(before, snapshot);
+    });
+  }
+}
+
+test('installed Column UI upgrades direct and nested legacy text together without changing sibling order', async () => {
+  const before = candidate.column([candidate.unaffected(), candidate.textChild(2, true),
+    candidate.accordion([candidate.textChild(2), candidate.textChild(3, true)]), candidate.unaffected()]);
+  const upgraded = await candidate.offeredUpgrade(before);
+  assert.deepEqual(upgraded.content, candidate.expectedUpgrade(before));
+  assert.deepEqual(upgraded.loads, ['H5P.ColumnPapiJo 1.21', 'H5P.AdvancedTextPapiJo 1.3', 'H5P.AccordionPapiJo 1.2']);
+});
+
+test('already-current direct AdvancedText and Accordion children survive without child loading', async () => {
+  const before = candidate.column([candidate.textChild(3, true),
+    candidate.accordion([candidate.textChild(3), candidate.textChild(3, true)], 2), candidate.unaffected()]);
+  const upgraded = await candidate.offeredUpgrade(before);
+  assert.deepEqual(upgraded.loads, ['H5P.ColumnPapiJo 1.21']);
+  assert.deepEqual(upgraded.content, candidate.expectedUpgrade(before));
+});
+
+test('regression: retaining Accordion 1.1 prevents the nested AdvancedText upgrade despite selecting Column 1.21', async () => {
+  const broken = candidate.readJson(path.join(root, 'semantics.json'));
+  const options = broken[0].field.fields[0].options;
+  options[options.indexOf('H5P.AccordionPapiJo 1.2')] = 'H5P.AccordionPapiJo 1.1';
+  const before = candidate.column([candidate.accordion([candidate.textChild(2, true)])]);
+  const upgraded = await candidate.offeredUpgrade(before, broken);
+  assert.deepEqual(upgraded.loads, ['H5P.ColumnPapiJo 1.21']);
+  assert.equal(upgraded.content.params.content[0].content.library, 'H5P.AccordionPapiJo 1.1');
+  assert.equal(upgraded.content.params.content[0].content.params.panels[0].content.library, 'H5P.AdvancedTextPapiJo 1.2');
+  assert.notDeepEqual(upgraded.content, candidate.expectedUpgrade(before));
+});

@@ -4,10 +4,12 @@
 
 ### Compatibility
 
-- Update the allowed H5P.AdvancedTextPapiJo child from 1.2 to 1.3.
+- Update the allowed child from H5P.AdvancedTextPapiJo 1.2 to H5P.AdvancedTextPapiJo 1.3.
+- Update the allowed child from H5P.AccordionPapiJo 1.1 to H5P.AccordionPapiJo 1.2, the repaired public upgrade boundary.
 - Keep all other child-library options, their order, runtime behavior, and H5P Core API 1.28 unchanged.
-- Install AdvancedTextPapiJo 1.3 separately when available; this preparation uses only a prospective registration fixture with unchanged 1.2.6 semantics.
-- InteractiveBookPapiJo currently pins ColumnPapiJo 1.20 and requires a separate compatibility update to adopt ColumnPapiJo 1.21.
+- Keep this candidate unreleased at 1.21.0. The genuine Column 1.20 -> 1.21 upgrade recursively migrates direct AdvancedTextPapiJo 1.2 -> 1.3 and AccordionPapiJo 1.1 -> 1.2 -> nested AdvancedTextPapiJo 1.2 -> 1.3, without a custom Column upgrade script.
+- Verify the actual local AdvancedTextPapiJo 1.3.0, tooltip editor 1.2.0, and public AccordionPapiJo 1.2.0 candidates with installed WordPress H5P code read-only. The private Accordion 1.1.8 recovery bridge is outside the public release chain.
+- Install compatible child libraries separately. InteractiveBookPapiJo 1.17.0 adopts ColumnPapiJo 1.21 in a separate compatibility update.
 
 ## 1.20.0 - 2026-09-24
 
