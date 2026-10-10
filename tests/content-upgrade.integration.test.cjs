@@ -92,14 +92,14 @@ function readGitJson(revision, filePath) {
   ));
 }
 
-function readColumn120Semantics() {
+function readColumn121Semantics() {
   const library = readJson(path.join(root, 'library.json'));
   const semantics = readJson(path.join(root, 'semantics.json'));
   const options = semantics[0].field.fields[0].options;
 
   assert.deepEqual(
     [library.machineName, library.majorVersion, library.minorVersion, library.patchVersion],
-    ['H5P.ColumnPapiJo', 1, 20, 0]
+    ['H5P.ColumnPapiJo', 1, 21, 0]
   );
   assert.equal(options.includes('H5P.QuestionSetPapiJo 1.23'), true);
   assert.equal(options.includes('H5P.ScaleQuestion 0.2'), true);
@@ -142,9 +142,9 @@ function createUpgradeContext({ loadScaleUpgrade = false } = {}) {
 
 function createDestinationLibraries({ includeQuestionSet = false, includeScale = false } = {}) {
   const libraries = new Map([
-    ['H5P.ColumnPapiJo 1.20', {
+    ['H5P.ColumnPapiJo 1.21', {
       name: 'H5P.ColumnPapiJo',
-      semantics: readColumn120Semantics()
+      semantics: readColumn121Semantics()
     }]
   ]);
 
@@ -165,7 +165,7 @@ function createDestinationLibraries({ includeQuestionSet = false, includeScale =
   return libraries;
 }
 
-async function runColumn120Upgrade(context, fixture, libraries, id) {
+async function runColumn121Upgrade(context, fixture, libraries, id) {
   const loadRequests = [];
   const loadLibrary = (name, version, done) => {
     const key = `${name} ${version.major}.${version.minor}`;
@@ -180,7 +180,7 @@ async function runColumn120Upgrade(context, fixture, libraries, id) {
     new context.H5P.ContentUpgradeProcess(
       'H5P.ColumnPapiJo',
       new context.H5P.Version('1.19'),
-      new context.H5P.Version('1.20'),
+      new context.H5P.Version('1.21'),
       JSON.stringify({ params: fixture.params, metadata: fixture.metadata }),
       id,
       loadLibrary,
@@ -468,7 +468,7 @@ test(
 );
 
 test(
-  'planned Column 1.20 upgrade recursively moves a direct ScaleQuestion 0.1 to 0.2',
+  'planned Column 1.21 upgrade recursively moves a direct ScaleQuestion 0.1 to 0.2',
   {
     skip: !h5pJsPath || !scaleQuestion02Path ||
       !fs.existsSync(path.join(scaleQuestion02Path, 'upgrades.js')) ?
@@ -506,7 +506,7 @@ test(
     const { context, getScaleUpgradeCalls } = createUpgradeContext({ loadScaleUpgrade: true });
     const libraries = createDestinationLibraries({ includeScale: true });
 
-    const { result, loadRequests } = await runColumn120Upgrade(
+    const { result, loadRequests } = await runColumn121Upgrade(
       context,
       fixture,
       libraries,
@@ -514,7 +514,7 @@ test(
     );
 
     assert.deepEqual(loadRequests, [
-      'H5P.ColumnPapiJo 1.20',
+      'H5P.ColumnPapiJo 1.21',
       'H5P.ScaleQuestion 0.2'
     ]);
     assert.equal(getScaleUpgradeCalls(), 1);
@@ -531,7 +531,7 @@ test(
 );
 
 test(
-  'planned Column 1.20 upgrade recursively moves a direct QuestionSetPapiJo 1.22 to 1.23',
+  'planned Column 1.21 upgrade recursively moves a direct QuestionSetPapiJo 1.22 to 1.23',
   {
     skip: !h5pJsPath || !questionSet123Path ?
       'H5P core upgrade scripts or QuestionSetPapiJo 1.23 are unavailable' : false
@@ -573,7 +573,7 @@ test(
     const { context } = createUpgradeContext();
     const libraries = createDestinationLibraries({ includeQuestionSet: true });
 
-    const { result, loadRequests } = await runColumn120Upgrade(
+    const { result, loadRequests } = await runColumn121Upgrade(
       context,
       fixture,
       libraries,
@@ -581,7 +581,7 @@ test(
     );
 
     assert.deepEqual(loadRequests, [
-      'H5P.ColumnPapiJo 1.20',
+      'H5P.ColumnPapiJo 1.21',
       'H5P.QuestionSetPapiJo 1.23'
     ]);
     assert.equal(result.params.content[0].content.library, 'H5P.QuestionSetPapiJo 1.23');
@@ -600,7 +600,7 @@ test(
 );
 
 test(
-  'planned Column 1.20 upgrade recursively moves nested QuestionSetPapiJo and ScaleQuestion versions',
+  'planned Column 1.21 upgrade recursively moves nested QuestionSetPapiJo and ScaleQuestion versions',
   {
     skip: !h5pJsPath || !questionSet123Path || !scaleQuestion02Path ||
       !fs.existsSync(path.join(scaleQuestion02Path, 'upgrades.js')) ?
@@ -650,7 +650,7 @@ test(
       includeScale: true
     });
 
-    const { result, loadRequests } = await runColumn120Upgrade(
+    const { result, loadRequests } = await runColumn121Upgrade(
       context,
       fixture,
       libraries,
@@ -660,7 +660,7 @@ test(
     const upgradedScale = upgradedQuestionSet.params.questions[0];
 
     assert.deepEqual(loadRequests, [
-      'H5P.ColumnPapiJo 1.20',
+      'H5P.ColumnPapiJo 1.21',
       'H5P.QuestionSetPapiJo 1.23',
       'H5P.ScaleQuestion 0.2'
     ]);
@@ -682,7 +682,7 @@ test(
 );
 
 test(
-  'planned Column 1.20 upgrade preserves unaffected child versions, content, and ordering',
+  'planned Column 1.21 upgrade preserves unaffected child versions, content, and ordering',
   { skip: !h5pJsPath ? 'H5P core upgrade scripts are unavailable' : false },
   async () => {
     const fixture = {
@@ -715,14 +715,14 @@ test(
     const { context } = createUpgradeContext();
     const libraries = createDestinationLibraries();
 
-    const { result, loadRequests } = await runColumn120Upgrade(
+    const { result, loadRequests } = await runColumn121Upgrade(
       context,
       fixture,
       libraries,
       'column-unaffected-children-upgrade'
     );
 
-    assert.deepEqual(loadRequests, ['H5P.ColumnPapiJo 1.20']);
+    assert.deepEqual(loadRequests, ['H5P.ColumnPapiJo 1.21']);
     assert.deepEqual(result.params, fixture.params);
     assert.deepEqual(
       result.params.content.map((entry) => entry.content.library),

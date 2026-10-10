@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.21.0 - 2026-10-10
+
+### Compatibility
+
+- Update the allowed H5P.AdvancedTextPapiJo child from 1.2 to 1.3.
+- Keep all other child-library options, their order, runtime behavior, and H5P Core API 1.28 unchanged.
+- Install AdvancedTextPapiJo 1.3 separately when available; this preparation uses only a prospective registration fixture with unchanged 1.2.6 semantics.
+- InteractiveBookPapiJo currently pins ColumnPapiJo 1.20 and requires a separate compatibility update to adopt ColumnPapiJo 1.21.
+
 ## 1.20.0 - 2026-09-24
 
 ### Compatibility

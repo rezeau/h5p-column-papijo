@@ -89,11 +89,10 @@ try {
   foreach ($relativePath in $columnFiles) {
     if ($relativePath -ne 'library.json') {
       if ($relativePath -eq 'semantics.json') {
-        $baseline = 'v1.19.1'
+        $baseline = 'v1.20.0'
         $expectedText = (& git -C $root show "${baseline}:$relativePath") -join "`n"
         $replacements = @(
-          @('H5P.QuestionSetPapiJo 1.22', 'H5P.QuestionSetPapiJo 1.23'),
-          @('H5P.ScaleQuestion 0.1', 'H5P.ScaleQuestion 0.2')
+          ,@('H5P.AdvancedTextPapiJo 1.2', 'H5P.AdvancedTextPapiJo 1.3')
         )
         foreach ($replacement in $replacements) {
           $from = $replacement[0]
@@ -108,15 +107,15 @@ try {
         $expectedCanonical = $expectedJson | ConvertTo-Json -Compress -Depth 100
         $workingCanonical = $workingJson | ConvertTo-Json -Compress -Depth 100
         if ($workingCanonical -cne $expectedCanonical) {
-          throw 'semantics.json differs from H5P.ColumnPapiJo 1.19.1 beyond the approved QuestionSetPapiJo 1.23 and ScaleQuestion 0.2 substitutions.'
+          throw 'semantics.json differs from H5P.ColumnPapiJo 1.20.0 beyond the approved AdvancedTextPapiJo 1.3 substitution.'
         }
       }
       else {
         $workingPath = Join-Path $root ($relativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        $baselineHash = (& git -C $root rev-parse "v1.19.1:$relativePath").Trim()
+        $baselineHash = (& git -C $root rev-parse "v1.20.0:$relativePath").Trim()
         $workingHash = (& git -C $root hash-object --no-filters $workingPath).Trim()
         if ($LASTEXITCODE -ne 0 -or $workingHash -ne $baselineHash) {
-          throw "Production runtime file differs from v1.19.1: $relativePath"
+          throw "Production runtime file differs from v1.20.0: $relativePath"
         }
       }
     }

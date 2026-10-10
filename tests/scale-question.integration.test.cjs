@@ -332,9 +332,9 @@ test('automatic separators give ScaleQuestion the same container boundaries as T
     const column = harness.instantiate({
       useSeparators: true,
       content: [
-        harness.makeColumnEntry('H5P.AdvancedTextPapiJo 1.2', {}, { useSeparator: 'auto' }),
+        harness.makeColumnEntry('H5P.AdvancedTextPapiJo 1.3', {}, { useSeparator: 'auto' }),
         harness.makeColumnEntry(questionLibrary, {}, { useSeparator: 'auto' }),
-        harness.makeColumnEntry('H5P.AdvancedTextPapiJo 1.2', {}, { useSeparator: 'auto' })
+        harness.makeColumnEntry('H5P.AdvancedTextPapiJo 1.3', {}, { useSeparator: 'auto' })
       ]
     });
     const target = harness.createContainer();

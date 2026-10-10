@@ -9,13 +9,13 @@ const vm = require('node:vm');
 
 const root = path.resolve(__dirname, '..');
 
-test('library version is exactly ColumnPapiJo 1.20.0', () => {
+test('library version is exactly ColumnPapiJo 1.21.0', () => {
   const library = JSON.parse(fs.readFileSync(path.join(root, 'library.json'), 'utf8'));
 
   assert.equal(library.machineName, 'H5P.ColumnPapiJo');
   assert.deepEqual(
     [library.majorVersion, library.minorVersion, library.patchVersion],
-    [1, 20, 0]
+    [1, 21, 0]
   );
 });
 
@@ -45,7 +45,7 @@ test('semantics retains exactly the eleven agreed PapiJo child options', () => {
   assert.deepEqual(papiJoOptions, [
     'H5P.AccordionPapiJo 1.1',
     'H5P.AdvancedBlanksPapiJo 1.4',
-    'H5P.AdvancedTextPapiJo 1.2',
+    'H5P.AdvancedTextPapiJo 1.3',
     'H5P.DialogcardsPapiJo 1.17',
     'H5P.DragQuestionPapiJo 1.14',
     'H5P.DragTextPapiJo 1.3',
@@ -57,25 +57,21 @@ test('semantics retains exactly the eleven agreed PapiJo child options', () => {
   ]);
 });
 
-test('semantics preserves the 1.19.1 allowlist while updating only planned child versions', () => {
+test('semantics preserves the 1.20.0 allowlist and order while updating only AdvancedTextPapiJo', () => {
   const semantics = JSON.parse(fs.readFileSync(path.join(root, 'semantics.json'), 'utf8'));
   const options = semantics[0].field.fields[0].options;
   const baseline = JSON.parse(execFileSync(
     'git',
-    ['show', 'v1.19.1:semantics.json'],
+    ['show', 'v1.20.0:semantics.json'],
     { cwd: root, encoding: 'utf8' }
   ));
-  const expected = baseline[0].field.fields[0].options.map((option) => {
-    if (option === 'H5P.QuestionSetPapiJo 1.22') {
-      return 'H5P.QuestionSetPapiJo 1.23';
-    }
-    if (option === 'H5P.ScaleQuestion 0.1') {
-      return 'H5P.ScaleQuestion 0.2';
-    }
-    return option;
-  });
+  const expected = baseline[0].field.fields[0].options.map((option) =>
+    option === 'H5P.AdvancedTextPapiJo 1.2' ? 'H5P.AdvancedTextPapiJo 1.3' : option
+  );
 
   assert.deepEqual(options, expected);
+  assert.equal(options.includes('H5P.AdvancedTextPapiJo 1.3'), true);
+  assert.equal(options.includes('H5P.AdvancedTextPapiJo 1.2'), false);
   assert.equal(options.includes('H5P.ScaleQuestion 0.2'), true);
   assert.equal(options.includes('H5P.QuestionSetPapiJo 1.23'), true);
   assert.equal(options.includes('H5P.ScaleQuestion 0.1'), false);

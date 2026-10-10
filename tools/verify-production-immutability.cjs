@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const baseline = 'v1.19.1';
+const baseline = 'v1.20.0';
 const root = path.resolve(__dirname, '..');
 const protectedFiles = [
   'scripts/h5p-column.js',
@@ -38,8 +38,7 @@ for (const file of protectedFiles) {
   if (file === 'semantics.json') {
     let baselineText = baselineBytes.toString('utf8');
     const replacements = [
-      ['H5P.QuestionSetPapiJo 1.22', 'H5P.QuestionSetPapiJo 1.23'],
-      ['H5P.ScaleQuestion 0.1', 'H5P.ScaleQuestion 0.2']
+      ['H5P.AdvancedTextPapiJo 1.2', 'H5P.AdvancedTextPapiJo 1.3']
     ];
     for (const [from, to] of replacements) {
       if (baselineText.split(from).length !== 2) {
