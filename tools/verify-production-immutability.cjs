@@ -47,6 +47,13 @@ for (const file of protectedFiles) {
       }
       baselineText = baselineText.replace(from, to);
     }
+    const childAnchor = '"H5P.Collage 0.3",';
+    if (baselineText.split(childAnchor).length !== 2) {
+      throw new Error('Expected exactly one Collage child anchor in baseline semantics.');
+    }
+    const newline = baselineText.includes('\r\n') ? '\r\n' : '\n';
+    baselineText = baselineText.replace(childAnchor,
+      childAnchor + newline + '            "H5P.ConcordancesPapiJo 1.1",');
     baselineBytes = Buffer.from(baselineText);
   }
   const workingBytes = fs.readFileSync(path.join(root, file));

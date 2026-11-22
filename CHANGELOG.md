@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.21.1 - 2026-11-22
+
+### Compatibility
+
+- Add H5P.ConcordancesPapiJo 1.1 as an allowed child library.
+- Use the separately installed, published ConcordancesPapiJo 1.1.1 for task recognition, completion and parent reset support.
+- Retain Column task detection, scoring, runtime behavior and H5P Core API 1.28 unchanged. InteractiveBookPapiJo 1.17.0 requires no changes.
+- H5P CLI and WordPress integration testing passed for completion recognition, partial scoring, final Summary and InteractiveBook Restart.
+
+### Release preparation
+
+- Update patch metadata to 1.21.1 and extend the release guards to permit exactly the Concordances child-library addition while retaining existing production restrictions.
+
 ## 1.21.0 - 2026-10-10
 
 ### Compatibility

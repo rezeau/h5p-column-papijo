@@ -5,7 +5,7 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
 const baseline = 'v1.20.0';
-const requiredVersion = '1.21.0';
+const requiredVersion = '1.21.1';
 const root = path.resolve(__dirname, '..');
 const library = JSON.parse(fs.readFileSync(path.join(root, 'library.json'), 'utf8'));
 const packageMetadata = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
@@ -16,10 +16,10 @@ const baselineLibrary = JSON.parse(execFileSync(
 ));
 
 const version = `${library.majorVersion}.${library.minorVersion}.${library.patchVersion}`;
-const expectedVersion = `${baselineLibrary.majorVersion}.${baselineLibrary.minorVersion + 1}.0`;
+const expectedVersion = `${baselineLibrary.majorVersion}.${baselineLibrary.minorVersion + 1}.1`;
 
 if (version !== requiredVersion || version !== expectedVersion) {
-  throw new Error(`Expected minor-version transition ${baselineLibrary.majorVersion}.${baselineLibrary.minorVersion}.${baselineLibrary.patchVersion} to ${requiredVersion}, found ${version}.`);
+  throw new Error(`Expected release-version transition ${baselineLibrary.majorVersion}.${baselineLibrary.minorVersion}.${baselineLibrary.patchVersion} to ${requiredVersion}, found ${version}.`);
 }
 if (library.majorVersion !== baselineLibrary.majorVersion) {
   throw new Error(`library.json majorVersion changed from ${baselineLibrary.majorVersion} to ${library.majorVersion}.`);
@@ -65,9 +65,15 @@ for (const [from, to] of substitutions) {
     if (!text.includes(to)) throw new Error(`${file} must document ${to} for ${version}.`);
   }
 }
+const childAnchor = '"H5P.Collage 0.3",';
+if (expectedSemantics.split(childAnchor).length !== 2) {
+  throw new Error('Expected exactly one Collage child anchor in baseline semantics.');
+}
+expectedSemantics = expectedSemantics.replace(childAnchor,
+  childAnchor + '\n            "H5P.ConcordancesPapiJo 1.1",');
 if (JSON.stringify(JSON.parse(expectedSemantics)) !==
     JSON.stringify(JSON.parse(fs.readFileSync(path.join(root, 'semantics.json'), 'utf8')))) {
-  throw new Error('Release semantics must contain exactly the two approved child-version substitutions.');
+  throw new Error('Release semantics must contain exactly the two approved child-version substitutions and the ConcordancesPapiJo 1.1 addition.');
 }
 if (fs.existsSync(path.join(root, 'upgrades.js'))) {
   throw new Error('Column 1.21 uses H5P recursive upgrades without a custom upgrades.js.');

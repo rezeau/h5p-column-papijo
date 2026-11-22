@@ -103,12 +103,17 @@ try {
           }
           $expectedText = $expectedText.Replace($from, $to)
         }
+        $childAnchor = '"H5P.Collage 0.3",'
+        if ([regex]::Matches($expectedText, [regex]::Escape($childAnchor)).Count -ne 1) {
+          throw 'Expected exactly one Collage child anchor in baseline semantics.'
+        }
+        $expectedText = $expectedText.Replace($childAnchor, $childAnchor + "`n" + '            "H5P.ConcordancesPapiJo 1.1",')
         $expectedJson = $expectedText | ConvertFrom-Json
         $workingJson = Get-Content -Raw -LiteralPath (Join-Path $root $relativePath) | ConvertFrom-Json
         $expectedCanonical = $expectedJson | ConvertTo-Json -Compress -Depth 100
         $workingCanonical = $workingJson | ConvertTo-Json -Compress -Depth 100
         if ($workingCanonical -cne $expectedCanonical) {
-          throw 'semantics.json differs from H5P.ColumnPapiJo 1.20.0 beyond the approved AdvancedTextPapiJo 1.3 and AccordionPapiJo 1.2 substitutions.'
+          throw 'semantics.json differs from H5P.ColumnPapiJo 1.20.0 beyond the approved AdvancedTextPapiJo 1.3 and AccordionPapiJo 1.2 substitutions and ConcordancesPapiJo 1.1 addition.'
         }
       }
       else {
